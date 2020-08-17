@@ -1,0 +1,46 @@
+{
+  "name": "twgl_react",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify --debug index.js -o bundle.js",
+    "watch": "budo index.js:bundle.js -p 8000 --live --debug",
+    "prod": "browserify index.js -o bundle.js && uglifyjs bundle.js -o bundle.js"
+  },
+  "author": "Ollie",
+  "license": "MIT",
+  "note": "browserify, budo, uglify global installed",
+  "browserify": {
+    "transform": [
+      "cssify",
+      [
+        "babelify",
+        {
+          "presets": [
+            "@babel/preset-env",
+            "@babel/preset-react"
+          ],
+          "extensions": [
+            ".js",
+            ".fs",
+            ".vs"
+          ]
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "babelify": "^10.0.0",
+    "cssify": "^1.0.3"
+  },
+  "dependencies": {
+    "dat.gui": "^0.7.7",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "twgl.js": "^4.15.2"
+  }
+}
