@@ -5,43 +5,50 @@ import * as twgl from "../node_modules/twgl.js/dist/4.x/twgl-full.module.js";
 import def_vs from "../shaders/default.vs";
 import def_fs from "../shaders/default.fs";
 
-// const data = {
-//     fs: null,
-//     uniforms: null,
-//     vs: null,
-//     cb: null,
-//     arrays: null,
-//     res: null,
-//     gl: null
-// }
 
-// const frag_prog_proto = {
-//     fs: null,
-//     uniforms: null,
-//     cb: null,
-// }
+/*
+const frag_prog_proto = {
+    fs: fs || null,
+    vs : vs || null,
+    arrays: arrays || null,
+    uniforms: uniforms || null,
+    rendercb: rendercb || null,
+    setupcb: setupcb || null,
+    data: data || null
+}
+*/
 
 class GlProg{
+
     constructor(prog){
         this.gl = prog.gl;
-        this.res = prog.res;
-        this.vs = prog.vs;
-        this.arrays = prog.arrays;
-        this.fs = prog.fs; 
-            this.uniforms = {
-            time : 0,
-            resolution: [this.res.width, this.res.height]
-        };
-        if(prog.uniforms) this.addUniforms(prog.uniforms);
-        this.renderCb = prog.cb;
         this.programInfo = null;
         this.bufferInfo = null;
-        this.render = this.render.bind(this);
         this.mouse = [0,0];
+        this.rendercb = prog.rendercb;
+        this.setupcb = prog.setupcb;
+        this.arrays = prog.arrays;
+        this.res = prog.res;
+        this.uniforms = {
+            time : 0,
+            resolution: [this.res.width, this.res.height],
+            mouse: this.mouse
+        };
+        if(prog.uniforms) this.addUniforms(prog.uniforms);
+        this.render = this.render.bind(this);
+        this.req = null;
+
+        this.pgm = {};
+        this.pgm.uniforms = this.uniforms;
+        this.pgm.arrays = this.arrays;
+        this.pgm.res = this.res;
+        this.pgm.fs = prog.fs;
+        this.pgm.vs = prog.vs;
+        this.pgm.data = prog.data;
     }
 
     init(){
-        this.programInfo = twgl.createProgramInfo(this.gl, [this.vs, this.fs]);
+        this.programInfo = twgl.createProgramInfo(this.gl, [this.pgm.vs, this.pgm.fs]);
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.arrays);
         this.gl.canvas.width = this.res.width;
         this.gl.canvas.height = this.res.width;        
@@ -50,6 +57,7 @@ class GlProg{
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
         this.gl.useProgram(this.programInfo.program);
+        this.setupcb(this.pgm);
     }
 
     addUniforms(u){
@@ -58,16 +66,12 @@ class GlProg{
         }
     }
 
-    setRenderCb(cb){
-        this.renderCb = cb;
-    }
-
     start(){
-        requestAnimationFrame(this.render);
+        this.req = requestAnimationFrame(this.render);
     }
 
     stop(){
-
+        cancelAnimationFrame(this.req);
     }
 
     render(time){
@@ -75,12 +79,13 @@ class GlProg{
         this.uniforms.time = time * 0.001;
         this.uniforms.resolution = [this.gl.canvas.width, this.gl.canvas.height];
         this.uniforms.mouse = this.mouse;
-        this.renderCb(this.uniforms);
+        this.rendercb(this.pgm);
         twgl.setUniforms(this.programInfo, this.uniforms);
         twgl.drawBufferInfo(this.gl, this.bufferInfo);
 
-        requestAnimationFrame(this.render);
+        this.req = requestAnimationFrame(this.render);
     }
+
 }
 
 class Glview extends Component {
@@ -95,6 +100,7 @@ class Glview extends Component {
         this.programs = [];
         this.fsprogs = props.programs;
         this.pgm_idx = -1;
+        window.sceneRef = this;
     }
 
     switchPogram(index){
@@ -102,15 +108,18 @@ class Glview extends Component {
         this.programs[index].start();
     }
 
+    /* fs, vs, res, uniforms, arrays, data, rendercb, setupcb, gl */
     createProgram(fsprog){
         if(!fsprog) fsprog = {};
-        if(!fsprog.res) fsprog.res = this.res;
         if(!fsprog.gl) fsprog.gl = this.gl;
-        if(!fsprog.arrays) fsprog.arrays = this.arrays;
         if(!fsprog.vs) fsprog.vs = this.vs;
         if(!fsprog.fs) fsprog.fs = this.fs;
-        if(!fsprog.cb) fsprog.cb = ()=>{};
-        // uniforms added in GLprog constructor
+        if(!fsprog.arrays) fsprog.arrays = this.arrays;
+        if(!fsprog.res) fsprog.res = this.res;
+        if(!fsprog.data) fsprog.data = undefined;
+        if(!fsprog.rendercb) fsprog.rendercb = ()=>{};
+        if(!fsprog.setupcb) fsprog.setupcb = ()=>{};
+        // uniforms added in Glprog constructor
         this.programs.push(new GlProg(fsprog));
         this.pgm_idx++;
         this.programs[this.pgm_idx].init();
@@ -128,7 +137,6 @@ class Glview extends Component {
     render() {
         return (
             <div>
-            <h2>blep</h2>
             <canvas id="canv" ref={this.canvasRef} />
             </div>
         );

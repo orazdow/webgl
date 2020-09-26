@@ -4,7 +4,7 @@ import * as dat from 'dat.gui';
 const gui = new dat.GUI();
 
 
-/* import shaders here */
+/* import scenes / shaders here */
 import ball_fs from "../shaders/ball.fs";
 
 
@@ -19,7 +19,10 @@ programs.push(frag_prog_proto);
 
 function Scene(props) {
 	return (
+		<div>
+		<h2>blep</h2>
 		<Glview res={{ width: 600, height: 600}} programs={programs} />
+		</div>
 		);
 }
 
