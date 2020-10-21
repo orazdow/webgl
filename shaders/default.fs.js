@@ -1,12 +1,13 @@
-const shader = `
+const shader = `#version 300 es
 
 precision mediump float;
                            
 uniform vec2 resolution;  
 uniform vec2 mouse;             
+out vec4 fragColor;
 
     void main(){
-        gl_FragColor = vec4((gl_FragCoord.xy-mouse.xy)/resolution.xy, 1, 1);
+        fragColor = vec4((gl_FragCoord.xy-mouse.xy)/resolution.xy, 1, 1);
     }
 
 `;

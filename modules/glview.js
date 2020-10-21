@@ -1,4 +1,4 @@
-import * as twgl from "./twgl-full.module.js";
+import * as twgl from "./twgl-full.module.min.js";
 
 /* import shaders here */
 import def_vs from "../shaders/default.vs.js";
@@ -23,36 +23,35 @@ class GlProg{
 
     constructor(prog){
         this.gl = prog.gl;
+        this.prog = prog;
+        this.drawType = prog.drawType;
         this.programInfo = null;
         this.bufferInfo = null;
-        this.rendercb = prog.rendercb;
-        this.setupcb = prog.setupcb;
-        this.arrays = prog.arrays;
-        this.res = prog.res;
-        this.fs = prog.fs;
-        this.vs = prog.vs;
         this.uniforms = prog.uniforms;
         this.render = this.render.bind(this);
         this.req = null;
+        
         this.pgm = {
             uniforms : this.uniforms,
-            arrays : this.arrays,
-            res : this.res,
-            data : prog.data          
+            arrays : this.prog.arrays,
+            res : this.prog.res,
+            data : this.prog.data          
         };
     }
 
     init(){
-        this.programInfo = twgl.createProgramInfo(this.gl, [this.vs, this.fs]);
-        this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.arrays);
+        for(let key in this.prog.textures) 
+            this.uniforms[key] = twgl.createTexture(this.gl, this.prog.textures[key]);   
+        this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
+        this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
         this.gl.canvas.onmousemove = (e)=>{ this.uniforms.mouse[0] = e.offsetX; this.uniforms.mouse[1] = e.offsetY; }
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
-        this.setupcb(this.pgm);
+        this.prog.setupcb(this.pgm);
     }
 
     start(){
-        this.gl.canvas.width = this.res.width;
-        this.gl.canvas.height = this.res.height;
+        this.gl.canvas.width = this.prog.res.width;
+        this.gl.canvas.height = this.prog.res.height;
         twgl.resizeCanvasToDisplaySize(this.gl.canvas);
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         this.gl.useProgram(this.programInfo.program);
@@ -66,9 +65,9 @@ class GlProg{
     render(time){
         this.uniforms.time = time * 0.001;
         this.uniforms.resolution = [this.gl.canvas.width, this.gl.canvas.height];
-        this.rendercb(this.pgm);
+        this.prog.rendercb(this.pgm);
         twgl.setUniforms(this.programInfo, this.uniforms);
-        twgl.drawBufferInfo(this.gl, this.bufferInfo);
+        twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawType);
         this.req = requestAnimationFrame(this.render);
     }
 
@@ -85,9 +84,12 @@ class Glview{
         window.sceneRef = this;
 
         this.prog = {
-            gl : canvas.getContext("webgl"),
+            gl : canvas.getContext("webgl2"),
             res : _res || {width: 600, height: 600},
-            arrays : {position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0]},
+            arrays : {
+                position: { numComponents: 3, data: [-1, -1, 0,  -1, 1, 0,  1, -1, 0,  1, 1, 0] },
+                texcoord: { numComponents: 2, data: [0, 1,  0, 0, 1, 1,  1, 0] }
+            },
             vs : def_vs,
             fs : def_fs,
             uniforms : {
@@ -95,6 +97,7 @@ class Glview{
                 resolution: [600, 600],
                 mouse: [0,0]
                 },
+            drawType : 5,
             data : null,
             textures : null,
             rendercb : ()=>{},

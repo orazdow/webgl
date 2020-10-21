@@ -1,4 +1,4 @@
-const shader = `
+const shader = `#version 300 es
 
 precision mediump float;
 
@@ -12,8 +12,8 @@ vec2 mouse = vec2(0.5);
 
 // time in s
 uniform float time;
-
 uniform vec2 resolution;
+out vec4 fragColor; 
 
 vec2 b1, b2, b3, b4 = vec2(0.5);
 
@@ -42,7 +42,7 @@ void main(){
     c += r/distance(uv, d*b4);
     c *= 0.02;
 
-    gl_FragColor = vec4( vec3(c,0,c*0.5), 1.0 );
+    fragColor = vec4( vec3(c,0,c*0.5), 1.0 );
 }
 
 
