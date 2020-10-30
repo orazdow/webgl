@@ -1,7 +1,7 @@
 import { Glview } from "/modules/glview.js";
 
 /* import scenes / shaders here */
-import ball_fs from "../shaders/ball.fs.js";
+import ball_fs from "/shaders/ball.fs.js";
 import tex_prog from "/scenes/tex_test.js";
 
 

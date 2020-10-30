@@ -7,24 +7,35 @@ import def_fs from "../shaders/default.fs.js";
 
 /*
 const frag_prog_proto = {
-    fs: fs || null,
-    vs : vs || null,
+    fs: fs || null (default.fs),
+    vs: vs || null (default.vs),
+    res: res || null (width: 600, height: 600)
     arrays: arrays || null,
     uniforms: uniforms || null,
     rendercb: rendercb || null,
     setupcb: setupcb || null,
     data: data || null,
-    textures: {uniformname : texoptions, ..} || null
+    textures: {u_name : twgl-texoptions, ...} || null,
+    drawtype: drawtype || null (gl_triangle_strip),
+    clearcolor: clearcolor || null (0,0,0,0)
 }
 */
 
+
+const gl_fields = (gl, prog)=>{
+    for(let v in prog){
+        if(gl[[prog[v]]])
+            prog[v] = gl[[prog[v]]];   
+    }
+    return prog;
+}
 
 class GlProg{
 
     constructor(prog){
         this.gl = prog.gl;
         this.prog = prog;
-        this.drawType = prog.drawType;
+        this.drawtype = prog.drawtype;
         this.programInfo = null;
         this.bufferInfo = null;
         this.uniforms = prog.uniforms;
@@ -41,10 +52,10 @@ class GlProg{
 
     init(){
         for(let key in this.prog.textures) 
-            this.uniforms[key] = twgl.createTexture(this.gl, this.prog.textures[key]);   
+            this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key]));   
         this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
-        this.gl.canvas.onmousemove = (e)=>{ this.uniforms.mouse[0] = e.offsetX; this.uniforms.mouse[1] = e.offsetY; }
+        this.gl.canvas.onmousemove = (e)=>{ this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY; }
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
         this.prog.setupcb(this.pgm);
     }
@@ -55,6 +66,7 @@ class GlProg{
         twgl.resizeCanvasToDisplaySize(this.gl.canvas);
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         this.gl.useProgram(this.programInfo.program);
+        this.gl.clearColor(...this.prog.clearcolor);
         this.req = requestAnimationFrame(this.render);
     }
 
@@ -63,11 +75,12 @@ class GlProg{
     }
 
     render(time){
-        this.uniforms.time = time * 0.001;
-        this.uniforms.resolution = [this.gl.canvas.width, this.gl.canvas.height];
+        this.uniforms.u_time = time * 0.001;
+        this.uniforms.u_resolution = [this.gl.canvas.width, this.gl.canvas.height];
         this.prog.rendercb(this.pgm);
         twgl.setUniforms(this.programInfo, this.uniforms);
-        twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawType);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
         this.req = requestAnimationFrame(this.render);
     }
 
@@ -76,15 +89,18 @@ class GlProg{
 
 class Glview{
 
-    constructor(canvas, progs, _res) {
-
+    constructor(canvas, progs, _res, _bkgd) {
         this.fsprogs = (progs instanceof Array)? progs : [progs];
         this.programs = [];
-        this.pgm_idx = -1;
+        this.pgm_idx = 0;
         window.sceneRef = this;
-
+        if(!canvas){ console.log('null canvas'); return; }
+        canvas.style.backgroundColor = _bkgd || "";
+        let gl = canvas.getContext("webgl2", { remultipliedAlpha: false });
+        
+        // defaults
         this.prog = {
-            gl : canvas.getContext("webgl2"),
+            gl : gl,
             res : _res || {width: 600, height: 600},
             arrays : {
                 position: { numComponents: 3, data: [-1, -1, 0,  -1, 1, 0,  1, -1, 0,  1, 1, 0] },
@@ -93,22 +109,25 @@ class Glview{
             vs : def_vs,
             fs : def_fs,
             uniforms : {
-                time : 0,
-                resolution: [600, 600],
-                mouse: [0,0]
-                },
-            drawType : 5,
+                u_time : 0,
+                u_resolution: [600, 600],
+                u_mouse: [0,0]
+            },
+            clearcolor: [0.0, 0.0, 0.0, 0.0],
+            drawtype : gl.TRIANGLE_STRIP,
             data : null,
             textures : null,
             rendercb : ()=>{},
             setupcb : ()=>{}
         };
 
-        if(!this.prog.gl){console.log('invalid canvas element'); return;}
+        gl.disable(gl.DEPTH_TEST);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-        for(const p of this.fsprogs){
+        for(const p of this.fsprogs)
             this.createProgram(p);
-        }
+        
         this.switchPogram(0);
     
     }
@@ -133,8 +152,7 @@ class Glview{
         fsprog = fsprog || {};
         this.merge(fsprog, this.prog);
         this.programs.push(new GlProg(fsprog));
-        this.pgm_idx++;
-        this.programs[this.pgm_idx].init();
+        this.programs[this.pgm_idx++].init();
     }
 
 }
