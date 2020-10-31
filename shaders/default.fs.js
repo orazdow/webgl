@@ -6,8 +6,13 @@ uniform vec2 u_resolution;
 uniform vec2 u_mouse;             
 out vec4 fragColor;
 
+
+
     void main(){
-        fragColor = vec4((gl_FragCoord.xy-u_mouse.xy)/u_resolution.xy, 1, 1);
+
+    	vec2 rg = (gl_FragCoord.xy-u_mouse*vec2(1, -1))/u_resolution;
+
+        fragColor = vec4(rg.x, 1.0-rg.y, rg.y, 1);
     }
 
 `;

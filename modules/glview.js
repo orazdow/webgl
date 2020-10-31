@@ -4,7 +4,6 @@ import * as twgl from "./twgl-full.module.min.js";
 import def_vs from "../shaders/default.vs.js";
 import def_fs from "../shaders/default.fs.js";
 
-
 /*
 const frag_prog_proto = {
     fs: fs || null (default.fs),
@@ -20,7 +19,6 @@ const frag_prog_proto = {
     clearcolor: clearcolor || null (0,0,0,0)
 }
 */
-
 
 const gl_fields = (gl, prog)=>{
     for(let v in prog){
@@ -92,7 +90,7 @@ class Glview{
     constructor(canvas, progs, _res, _bkgd) {
         this.fsprogs = (progs instanceof Array)? progs : [progs];
         this.programs = [];
-        this.pgm_idx = 0;
+        this.pgm_idx = 0, this.active = 0;
         window.sceneRef = this;
         if(!canvas){ console.log('null canvas'); return; }
         canvas.style.backgroundColor = _bkgd || "";
@@ -121,6 +119,10 @@ class Glview{
             setupcb : ()=>{}
         };
 
+        this.gui_ctl = {
+            idx : this.active
+        }
+
         gl.disable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -128,8 +130,18 @@ class Glview{
         for(const p of this.fsprogs)
             this.createProgram(p);
         
-        this.switchPogram(0);
+        this.switchPogram(this.active);
     
+    }
+
+    initGui(gui){
+
+        gui.add(this.gui_ctl, 'idx', 0, this.pgm_idx-1, 1).onChange((val)=>{
+            if(this.active != val){
+                this.active = val;
+                this.switchPogram(this.active);
+            }
+        });
     }
 
     switchPogram(index){

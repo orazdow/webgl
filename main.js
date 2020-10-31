@@ -1,7 +1,8 @@
 import { Glview } from "/modules/glview.js";
+import * as dat from "/modules/dat.gui.module.min.js";
 
-/* import scenes / shaders here */
-import ball_fs from "/shaders/ball.fs.js";
+/* import scenes/shaders here */
+import ball_fs from "../shaders/ball.fs.js";
 import tex_prog from "/scenes/tex_test.js";
 
 
@@ -19,4 +20,5 @@ const frag_prog_proto = {
 const def_prog = {};
 
 
-const glview = new Glview(document.querySelector('#disp'), [frag_prog_proto, def_prog, tex_prog]);
+const glview = new Glview(document.querySelector('#disp'), [frag_prog_proto, tex_prog, def_prog]);
+glview.initGui(new dat.GUI());
