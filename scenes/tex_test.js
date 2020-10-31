@@ -16,7 +16,7 @@ void main() {
 // https://twgljs.org/docs/module-twgl.html#.createTexture
 // https://twgljs.org/docs/module-twgl.html#.TextureOptions
 const texOptions = { 
-    src: '/resources/anchorkin.png',
+    src: '../resources/anchorkin.png',
     min: 'LINEAR',
     mag: 'NEAREST',
     // wrap: 'CLAMP_TO_EDGE'

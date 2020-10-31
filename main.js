@@ -1,9 +1,9 @@
-import { Glview } from "/modules/glview.js";
-import * as dat from "/modules/dat.gui.module.min.js";
+import { Glview } from "./modules/glview.js";
+import * as dat from "./modules/dat.gui.module.min.js";
 
 /* import scenes/shaders here */
-import ball_fs from "../shaders/ball.fs.js";
-import tex_prog from "/scenes/tex_test.js";
+import ball_fs from "./shaders/ball.fs.js";
+import tex_prog from "./scenes/tex_test.js";
 
 
 const frag_prog_proto = {
