@@ -120,7 +120,7 @@ class Glview{
         };
 
         this.gui_ctl = {
-            idx : this.active
+            pgm : this.active
         }
 
         gl.disable(gl.DEPTH_TEST);
@@ -136,7 +136,7 @@ class Glview{
 
     initGui(gui){
 
-        gui.add(this.gui_ctl, 'idx', 0, this.pgm_idx-1, 1).onChange((val)=>{
+        gui.add(this.gui_ctl, 'pgm', 0, this.pgm_idx-1, 1).onChange((val)=>{
             if(this.active != val){
                 this.active = val;
                 this.switchPogram(this.active);

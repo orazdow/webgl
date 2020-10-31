@@ -21,4 +21,7 @@ const def_prog = {};
 
 
 const glview = new Glview(document.querySelector('#disp'), [frag_prog_proto, tex_prog, def_prog]);
-glview.initGui(new dat.GUI());
+const gui = new dat.GUI();
+window.gui = gui;
+gui.__closeButton.style.visibility = "hidden";
+glview.initGui(gui);
