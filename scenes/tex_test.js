@@ -13,6 +13,8 @@ void main() {
 
 `;
 
+import tex_shader from "../shaders/tex_ctl.fs.js";
+
 // https://twgljs.org/docs/module-twgl.html#.createTexture
 // https://twgljs.org/docs/module-twgl.html#.TextureOptions
 const texOptions = { 
@@ -24,7 +26,7 @@ const texOptions = {
 
 const tex_prog = {
 	 res: { width: 800, height: 600},
-	 fs: tex_fs,
+	 fs: tex_shader,
 	 textures: {u_tex : texOptions},
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 	 // arrays: {texcoord: { numComponents: 2, data: [0, 2,  0, 0, 2, 2,  2, 0] }}

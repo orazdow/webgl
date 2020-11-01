@@ -87,15 +87,15 @@ class GlProg{
 
 class Glview{
 
-    constructor(canvas, progs, _res, _bkgd) {
+    constructor(canvas, progs, _res, _bkgd, _idx) {
         this.fsprogs = (progs instanceof Array)? progs : [progs];
         this.programs = [];
-        this.pgm_idx = 0, this.active = 0;
-        window.sceneRef = this;
+        this.pgm_idx = 0, this.active = _idx || 0;
         if(!canvas){ console.log('null canvas'); return; }
         canvas.style.backgroundColor = _bkgd || "";
         let gl = canvas.getContext("webgl2", { remultipliedAlpha: false });
-        
+        window.sceneRef = this;
+      
         // defaults
         this.prog = {
             gl : gl,
@@ -138,14 +138,14 @@ class Glview{
 
         gui.add(this.gui_ctl, 'pgm', 0, this.pgm_idx-1, 1).onChange((val)=>{
             if(this.active != val){
-                this.active = val;
-                this.switchPogram(this.active);
+                this.switchPogram(val);
             }
         });
     }
 
-    switchPogram(index){
-        for(let p of this.programs){p.stop();}
+    switchPogram(index){ 
+        this.programs[this.active].stop();
+        this.active = index;
         this.programs[index].start();
     }
 

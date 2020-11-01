@@ -32,12 +32,11 @@ const frag_prog_proto = {
     textures: null,*/
 };
 
-let pgms = [arraytex_prog, frag_prog_proto, tex_prog, {}];
+const pgms = [arraytex_prog, frag_prog_proto, tex_prog, {}];
 
 
 const glview = new Glview(document.querySelector('#disp'), pgms);
 const gui = new dat.GUI();
-window.gui = gui;
 gui.__closeButton.style.visibility = "hidden";
 glview.initGui(gui);
 
