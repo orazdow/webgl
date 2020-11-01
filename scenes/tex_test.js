@@ -2,13 +2,13 @@
 const tex_fs = `#version 300 es
 precision mediump float;
 
-in vec2 u_texcoord;
+in vec2 v_texcoord;
 uniform mediump sampler2D u_tex;
 
 out vec4 fragColor;
 
 void main() {
-	fragColor = texture(u_tex, u_texcoord);
+	fragColor = texture(u_tex, v_texcoord);
 }
 
 `;
