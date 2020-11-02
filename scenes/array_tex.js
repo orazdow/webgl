@@ -12,11 +12,8 @@ out vec4 fragColor;
 
 
 	void main(){
-
 		fragColor = texture(u_sampler, vec3(v_texcoord, u_idx));
-
 	}
-
 
 `;
 
