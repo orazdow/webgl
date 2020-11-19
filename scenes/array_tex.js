@@ -17,8 +17,6 @@ out vec4 fragColor;
 
 `;
 
-// using module globals instead of data field
-
 const i_fps = 1.0 / 60.0;
 
 let sig = {
@@ -42,8 +40,7 @@ const rendercb = (pgm)=>{
 
 	inc_ramp_int(sig, 0.5, idx, 4);
 	pgm.uniforms.u_idx = idx.val;
-	// pgm.uniforms.mixsig += 0.01;
-	// if(pgm.uniforms.mixsig > 1) pgm.uniforms.mixsig = 0;
+
 }
 
 const options = {
@@ -57,6 +54,10 @@ const options = {
 
 };
 
+const gui = {
+	name: 'pngs'
+};
+
 const prog = {
 	 res: { width: 800, height: 600},
 	 fs: fs,
@@ -66,6 +67,7 @@ const prog = {
 	 	mixsig: 1
 	 },
 	 rendercb : rendercb,
+	 // gui: gui
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 };
 

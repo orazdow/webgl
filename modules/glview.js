@@ -8,15 +8,15 @@ import def_fs from "../shaders/default.fs.js";
 const frag_prog_proto = {
     fs: fs || null (default.fs),
     vs: vs || null (default.vs),
-    res: res || null (width: 600, height: 600)
-    arrays: arrays || null,
+    res: res || null (width: 600, height: 600),
+    arrays: arrays || null, 
     uniforms: uniforms || null,
     rendercb: rendercb || null,
     setupcb: setupcb || null,
-    data: data || null,
     textures: {u_name : twgl-texoptions, ...} || null,
     drawtype: drawtype || null (gl_triangle_strip),
-    clearcolor: clearcolor || null (0,0,0,0)
+    clearcolor: clearcolor || null (0,0,0,0),
+    gui: guioptions || null
 }
 */
 
@@ -43,8 +43,7 @@ class GlProg{
         this.pgm = {
             uniforms : this.uniforms,
             arrays : this.prog.arrays,
-            res : this.prog.res,
-            data : this.prog.data          
+            res : this.prog.res
         };
     }
 
@@ -53,7 +52,7 @@ class GlProg{
             this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key]));   
         this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
-        this.gl.canvas.onmousemove = (e)=>{ this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY; }
+        this.gl.canvas.onpointermove = (e)=>{ this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY; }
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
         this.prog.setupcb(this.pgm);
     }
@@ -93,7 +92,8 @@ class Glview{
         this.pgm_idx = 0, this.active = _idx || 0;
         if(!canvas){ console.log('null canvas'); return; }
         canvas.style.backgroundColor = _bkgd || "";
-        let gl = canvas.getContext("webgl2", { remultipliedAlpha: false });
+        canvas.style.touchAction = "none";
+        let gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
         window.sceneRef = this;
       
         // defaults
@@ -113,7 +113,6 @@ class Glview{
             },
             clearcolor: [0.0, 0.0, 0.0, 0.0],
             drawtype : gl.TRIANGLE_STRIP,
-            data : null,
             textures : null,
             rendercb : ()=>{},
             setupcb : ()=>{}
@@ -129,24 +128,45 @@ class Glview{
 
         for(const p of this.fsprogs)
             this.createProgram(p);
-        
+    
         this.switchPogram(this.active);
     
     }
 
     initGui(gui){
 
+        if(this.programs.length > 1)
         gui.add(this.gui_ctl, 'pgm', 0, this.pgm_idx-1, 1).onChange((val)=>{
             if(this.active != val){
                 this.switchPogram(val);
             }
         });
+
+        for(let i = 0; i < this.programs.length; i++){
+            let p = this.programs[i];
+            if(p.prog.gui){
+                p.gui = gui.addFolder(p.prog.gui.name); 
+                if(p.prog.gui.open) p.gui.open();         
+                if(i !== this.active){ p.gui.hide(); } 
+                if(p.prog.gui.fields)
+                for(let o of p.prog.gui.fields){
+                    let f;
+                    if(f = o.onChange){ delete o.onChange; }
+                    let params = [o, Object.keys(o)[0], ...Object.values(o).slice(1)];
+                    let g = p.gui.add(...params);
+                    if(f){ g.onChange(f); }
+                }
+            }
+        }
+            
     }
 
     switchPogram(index){ 
         this.programs[this.active].stop();
+        if(this.programs[this.active].gui)this.programs[this.active].gui.hide();
         this.active = index;
         this.programs[index].start();
+        if(this.programs[this.active].gui)this.programs[this.active].gui.show();
     }
 
     merge(dest, template){
