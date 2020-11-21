@@ -17,8 +17,6 @@ out vec4 fragColor;
 
 `;
 
-// using module globals instead of data field
-
 const i_fps = 1.0 / 60.0;
 
 let sig = {
@@ -58,7 +56,6 @@ const options = {
 
 const gui = {
 	name: 'pngs'
-
 };
 
 const prog = {

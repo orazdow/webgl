@@ -36,8 +36,3 @@ const glview = new Glview(document.querySelector('#disp'), pgms, null, null, 0);
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";
 glview.initGui(gui);
-
-/*
-	todo:
-	async texture loading
-*/

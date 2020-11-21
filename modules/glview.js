@@ -43,8 +43,7 @@ class GlProg{
         this.pgm = {
             uniforms : this.uniforms,
             arrays : this.prog.arrays,
-            res : this.prog.res,
-            data : this.prog.data          
+            res : this.prog.res
         };
     }
 
@@ -94,7 +93,7 @@ class Glview{
         if(!canvas){ console.log('null canvas'); return; }
         canvas.style.backgroundColor = _bkgd || "";
         canvas.style.touchAction = "none";
-        let gl = canvas.getContext("webgl2", { remultipliedAlpha: false });
+        let gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
         window.sceneRef = this;
       
         // defaults
@@ -114,7 +113,6 @@ class Glview{
             },
             clearcolor: [0.0, 0.0, 0.0, 0.0],
             drawtype : gl.TRIANGLE_STRIP,
-            data : null,
             textures : null,
             rendercb : ()=>{},
             setupcb : ()=>{}
@@ -137,6 +135,7 @@ class Glview{
 
     initGui(gui){
 
+        if(this.programs.length > 1)
         gui.add(this.gui_ctl, 'pgm', 0, this.pgm_idx-1, 1).onChange((val)=>{
             if(this.active != val){
                 this.switchPogram(val);
