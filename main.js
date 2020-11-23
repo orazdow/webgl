@@ -7,6 +7,7 @@ import tex_prog from "./scenes/tex_test.js";
 import arraytex_prog from "./scenes/array_tex.js";
 import frag_test from "./scenes/frag_test.js";
 import brownian from "./scenes/brownian.js";
+import uvtest from "./scenes/uvtest.js";
 
 /* 
     fs: fs || null (default.fs),
@@ -28,7 +29,7 @@ const frag_prog_proto = {
     res: { width: 900, height: 700}
 };
 
-const pgms = [brownian, arraytex_prog, frag_prog_proto, tex_prog, {}];
+const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {}];
 
 
 const glview = new Glview(document.querySelector('#disp'), pgms, null, null, 0);

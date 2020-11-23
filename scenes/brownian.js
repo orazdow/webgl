@@ -12,7 +12,7 @@ const fshader = `#version 300 es
 
 		float c = 0.0;
 
-	    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+	    vec2 uv = (2.*gl_FragCoord.xy-u_resolution.xy)/u_resolution.y;
 
 	    for(int i = 0; i < 8; i++){
 	    	c += radius/distance(uv, points[i]);
@@ -26,52 +26,54 @@ const fshader = `#version 300 es
 
 `;
 
-/* 
-    fs: fs || null (default.fs),
-    vs: vs || null (default.vs),
-    res: res || null (width: 600, height: 600),
-    arrays: arrays || null, 
-    uniforms: uniforms || null,
-    rendercb: rendercb || null,
-    setupcb: setupcb || null,
-    textures: {u_name : twgl-texoptions, ...} || null,
-    drawtype: drawtype || null (gl_triangle_strip),
-    clearcolor: clearcolor || null (0,0,0,0),
-    gui: guioptions || null
-}
-*/
-
 let xypoints = [];
 xypoints.length = 16;
 xypoints.fill(0);
 
 let amount = 0.003;
-let rad = 10.0;
+let rad = 15.0;
+let _sink = 0;
 
 function setupcb (pgm){
 	for(let i = 0; i < pgm.uniforms.points.length; i++){
-		pgm.uniforms.points[i] = Math.random();// *1*2 - 1;
+		pgm.uniforms.points[i] = Math.random()*2-1.0;
 	}
 }
 
 function rendercb (pgm){
-	preturbXY(pgm.uniforms.points, amount);
+	preturb_sinkXY(pgm.uniforms.points, amount, _sink);
 	pgm.uniforms.radius = rad;
 }
 
 
-function preturbXY (floats, amp){
+function preturb_sinkXY(floats, amp, sink){
+	for(let i = 0; i < floats.length; i++){
+		let o = Math.atan2(floats[i]+0, floats[i+1]+0);
+		floats[i] += Math.sin(o)*sink;
+		floats[i+1] += Math.cos(o)*sink;
+		floats[i] += Math.random()*amp*2 - amp;
+		floats[++i] += Math.random()*amp*2 - amp;
+	}
+}
 
+function preturbXY (floats, amp){
 	for(let i = 0; i < floats.length; i++){	
 		floats[i] += Math.random()*amp*2 - amp;
 		floats[++i] += Math.random()*amp*2 - amp;
 	}
+}
 
+function sinkXY (floats, amp){
+	for(let i = 0; i < floats.length; i++){	
+		let o = Math.atan2(floats[i]+0, floats[i+1]+0);
+		floats[i] -= Math.sin(o)*amp;
+		floats[++i] -= Math.cos(o)*amp;
+	}
 }
 
 function reset(points){
 	for(let i = 0; i < points.length; i++){
-		points[i] = Math.random()*0.8 + 0.125;
+		points[i] = Math.random()*1.8 - 0.9;
 	}
 }
 
@@ -90,9 +92,16 @@ const gui = {
 			radius: rad,
 			onChange: (val)=>{rad = val;}
 		},
-		// {
-		// 	reset : ()=>{ reset(prog.uniforms.points); }
-		// }
+		{
+			sink: _sink,
+			min: -1,
+			max: 1,
+			step: 0.0001,
+			onChange: (val)=>{_sink = val*0.01;}			
+		},
+		{
+			reset : ()=>{ reset(prog.uniforms.points); }
+		}
 	]
 
 };
