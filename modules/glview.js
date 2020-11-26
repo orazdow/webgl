@@ -20,6 +20,29 @@ const frag_prog_proto = {
 }
 */
 
+// defaults
+const prog_default = {
+    gl : undefined,
+    res : {width: 600, height: 600},
+    arrays : {
+        position: { numComponents: 3, data: [-1, -1, 0,  -1, 1, 0,  1, -1, 0,  1, 1, 0] },
+        texcoord: { numComponents: 2, data: [0, 1,  0, 0, 1, 1,  1, 0] }
+    },
+    vs : def_vs,
+    fs : def_fs,
+    uniforms : {
+        u_time : 0,
+        u_resolution: [600, 600],
+        u_mouse: [0,0]
+    },
+    clearcolor: [0.0, 0.0, 0.0, 0.0],
+    drawtype : 5,
+    textures : null,
+    rendercb : ()=>{},
+    setupcb : ()=>{},
+    chain : null,
+    ctl: undefined
+};
 
 function pgm_render(time){
     this.uniforms.u_time = time * 0.001;
@@ -55,6 +78,17 @@ function chain_render(prog, uniforms){
     twgl.drawBufferInfo(prog.gl, prog.bufferInfo, prog.drawtype);
 }
 
+function merge(dest, template){
+    for(let prop in template){
+        if(!dest[prop]) dest[prop] = template[prop];
+        else if(typeof dest[prop] === 'object'){
+            for(let p in template[prop]){
+                if(!dest[prop][p]) dest[prop][p] = template[prop][p];
+            }
+        }
+    }
+}
+
 function gl_fields(gl, prog){
     for(let v in prog){
         if(gl[[prog[v]]])
@@ -88,9 +122,9 @@ class GlProg{
         this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
         if(!node)
-        this.gl.canvas.onpointermove = (e)=>{
-            this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY;
-        }    
+            this.gl.canvas.onpointermove = (e)=>{
+                this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY;
+            }    
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
         this.prog.setupcb(this.pgm);
         if(this.haschain){ 
@@ -130,29 +164,11 @@ class Glview{
         let gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
         window.sceneRef = this;
       
-        // defaults
-        this.prog = {
-            gl : gl,
-            res : _res || {width: 600, height: 600},
-            arrays : {
-                position: { numComponents: 3, data: [-1, -1, 0,  -1, 1, 0,  1, -1, 0,  1, 1, 0] },
-                texcoord: { numComponents: 2, data: [0, 1,  0, 0, 1, 1,  1, 0] }
-            },
-            vs : def_vs,
-            fs : def_fs,
-            uniforms : {
-                u_time : 0,
-                u_resolution: [600, 600],
-                u_mouse: [0,0]
-            },
-            clearcolor: [0.0, 0.0, 0.0, 0.0],
-            drawtype : gl.TRIANGLE_STRIP,
-            textures : null,
-            rendercb : ()=>{},
-            setupcb : ()=>{},
-            chain : null,
-            ctl: this
-        };
+        this.prog = prog_default;
+        this.prog.gl = gl;
+        this.prog.res = _res || this.prog.res;
+        this.prog.drawtype = gl.TRIANGLE_STRIP;
+        this.prog.ctl = this; 
 
         this.gui_ctl = {
             pgm : this.active
@@ -165,13 +181,27 @@ class Glview{
         for(const p of this.fsprogs){
             this.addProgram(p, this.programs, true);
         }
-    
+
         for(const p of this.programs){
             p.init();     
         }
 
         this.switchPogram(this.active);
     
+    }
+
+    switchPogram(index){ 
+        this.programs[this.active].stop();
+        if(this.programs[this.active].gui)this.programs[this.active].gui.hide();
+        this.active = index;
+        this.programs[index].start();
+        if(this.programs[this.active].gui)this.programs[this.active].gui.show();
+    }
+
+    addProgram(fsprog, arr){
+        fsprog = fsprog || {};
+        merge(fsprog, this.prog);
+        arr.push(new GlProg(fsprog));
     }
 
     initGui(gui){
@@ -209,30 +239,6 @@ class Glview{
         }
     }
 
-    switchPogram(index){ 
-        this.programs[this.active].stop();
-        if(this.programs[this.active].gui)this.programs[this.active].gui.hide();
-        this.active = index;
-        this.programs[index].start();
-        if(this.programs[this.active].gui)this.programs[this.active].gui.show();
-    }
-
-    addProgram(fsprog, arr){
-        fsprog = fsprog || {};
-        this.merge(fsprog, this.prog);
-        arr.push(new GlProg(fsprog));
-    }
-
-    merge(dest, template){
-        for(let prop in template){
-            if(!dest[prop]) dest[prop] = template[prop];
-            else if(typeof dest[prop] === 'object'){
-                for(let p in template[prop]){
-                    if(!dest[prop][p]) dest[prop][p] = template[prop][p];
-                }
-            }
-        }
-    }
 }
 
 export {Glview};
