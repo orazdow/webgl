@@ -20,7 +20,42 @@ const frag_prog_proto = {
 }
 */
 
-const gl_fields = (gl, prog)=>{
+
+function pgm_render(time){
+    this.uniforms.u_time = time * 0.001;
+    this.uniforms.u_resolution = [this.gl.canvas.width, this.gl.canvas.height];
+    this.prog.rendercb(this.pgm);
+    twgl.setUniforms(this.programInfo, this.uniforms);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
+    this.req = requestAnimationFrame(this.render);
+}
+
+function pgm_chain_render(time){ 
+    this.gl.useProgram(this.programInfo.program);
+    this.uniforms.u_time = time * 0.001;
+    this.uniforms.u_resolution = [this.gl.canvas.width, this.gl.canvas.height];
+    this.prog.rendercb(this.pgm);
+    twgl.setUniforms(this.programInfo, this.uniforms);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
+    for(let p of this.chain){
+        chain_render(p, this.uniforms);
+    }
+    this.req = requestAnimationFrame(this.render);
+}
+
+function chain_render(prog, uniforms){
+    prog.gl.useProgram(prog.programInfo.program);
+    prog.uniforms.u_time = uniforms.u_time;
+    prog.uniforms.u_resolution = uniforms.u_resolution;
+    prog.uniforms.u_mouse = uniforms.u_mouse;
+    prog.prog.rendercb(prog.pgm);
+    twgl.setUniforms(prog.programInfo, prog.uniforms);
+    twgl.drawBufferInfo(prog.gl, prog.bufferInfo, prog.drawtype);
+}
+
+function gl_fields(gl, prog){
     for(let v in prog){
         if(gl[[prog[v]]])
             prog[v] = gl[[prog[v]]];   
@@ -37,9 +72,9 @@ class GlProg{
         this.programInfo = null;
         this.bufferInfo = null;
         this.uniforms = prog.uniforms;
-        this.render = this.render.bind(this);
         this.req = null;
-        
+        this.haschain = (this.prog.chain && this.prog.chain.length);
+        this.render = this.haschain ? pgm_chain_render.bind(this) : pgm_render.bind(this);
         this.pgm = {
             uniforms : this.uniforms,
             arrays : this.prog.arrays,
@@ -47,14 +82,24 @@ class GlProg{
         };
     }
 
-    init(){
+    init(node){
         for(let key in this.prog.textures) 
             this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key]));   
         this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
-        this.gl.canvas.onpointermove = (e)=>{ this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY; }
+        if(!node)
+        this.gl.canvas.onpointermove = (e)=>{
+            this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY;
+        }    
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
         this.prog.setupcb(this.pgm);
+        if(this.haschain){ 
+            this.chain = [];
+            for(let i = 0; i < this.prog.chain.length; i++){
+                this.prog.ctl.addProgram(this.prog.chain[i], this.chain); 
+                this.chain[i].init();
+            }
+        }            
     }
 
     start(){
@@ -70,17 +115,6 @@ class GlProg{
     stop(){
         cancelAnimationFrame(this.req);
     }
-
-    render(time){
-        this.uniforms.u_time = time * 0.001;
-        this.uniforms.u_resolution = [this.gl.canvas.width, this.gl.canvas.height];
-        this.prog.rendercb(this.pgm);
-        twgl.setUniforms(this.programInfo, this.uniforms);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
-        this.req = requestAnimationFrame(this.render);
-    }
-
 }
 
 
@@ -89,7 +123,7 @@ class Glview{
     constructor(canvas, progs, _res, _bkgd, _idx) {
         this.fsprogs = (progs instanceof Array)? progs : [progs];
         this.programs = [];
-        this.pgm_idx = 0, this.active = _idx || 0;
+        this.programs.length = 0, this.active = _idx || 0;
         if(!canvas){ console.log('null canvas'); return; }
         canvas.style.backgroundColor = _bkgd || "";
         canvas.style.touchAction = "none";
@@ -115,7 +149,9 @@ class Glview{
             drawtype : gl.TRIANGLE_STRIP,
             textures : null,
             rendercb : ()=>{},
-            setupcb : ()=>{}
+            setupcb : ()=>{},
+            chain : null,
+            ctl: this
         };
 
         this.gui_ctl = {
@@ -126,9 +162,14 @@ class Glview{
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-        for(const p of this.fsprogs)
-            this.createProgram(p);
+        for(const p of this.fsprogs){
+            this.addProgram(p, this.programs, true);
+        }
     
+        for(const p of this.programs){
+            p.init();     
+        }
+
         this.switchPogram(this.active);
     
     }
@@ -136,7 +177,7 @@ class Glview{
     initGui(gui){
 
         if(this.programs.length > 1)
-        gui.add(this.gui_ctl, 'pgm', 0, this.pgm_idx-1, 1).onChange((val)=>{
+        gui.add(this.gui_ctl, 'pgm', 0, this.programs.length-1, 1).onChange((val)=>{
             if(this.active != val){
                 this.switchPogram(val);
             }
@@ -144,21 +185,28 @@ class Glview{
 
         for(let i = 0; i < this.programs.length; i++){
             let p = this.programs[i];
-            if(p.prog.gui){
-                p.gui = gui.addFolder(p.prog.gui.name); 
-                if(p.prog.gui.open) p.gui.open();         
-                if(i !== this.active){ p.gui.hide(); } 
-                if(p.prog.gui.fields)
-                for(let o of p.prog.gui.fields){
-                    let f;
-                    if(f = o.onChange){ delete o.onChange; }
-                    let params = [o, Object.keys(o)[0], ...Object.values(o).slice(1)];
-                    let g = p.gui.add(...params);
-                    if(f){ g.onChange(f); }
-                }
+            this.initSubGui(gui, p, (i !== this.active));
+            for(let _p of p.chain || []){
+                this.initSubGui(gui, _p, false);
             }
         }
             
+    }
+
+    initSubGui(gui, p, hide){
+        if(p.prog.gui){
+            p.gui = gui.addFolder(p.prog.gui.name); 
+            if(p.prog.gui.open) p.gui.open();         
+            if(hide){ p.gui.hide(); } 
+            if(p.prog.gui.fields)
+            for(let o of p.prog.gui.fields){
+                let f;
+                if(f = o.onChange){ delete o.onChange; }
+                let params = [o, Object.keys(o)[0], ...Object.values(o).slice(1)];
+                let g = p.gui.add(...params);
+                if(f){ g.onChange(f); }
+            }
+        }
     }
 
     switchPogram(index){ 
@@ -167,6 +215,12 @@ class Glview{
         this.active = index;
         this.programs[index].start();
         if(this.programs[this.active].gui)this.programs[this.active].gui.show();
+    }
+
+    addProgram(fsprog, arr){
+        fsprog = fsprog || {};
+        this.merge(fsprog, this.prog);
+        arr.push(new GlProg(fsprog));
     }
 
     merge(dest, template){
@@ -179,14 +233,6 @@ class Glview{
             }
         }
     }
-
-    createProgram(fsprog){
-        fsprog = fsprog || {};
-        this.merge(fsprog, this.prog);
-        this.programs.push(new GlProg(fsprog));
-        this.programs[this.pgm_idx++].init();
-    }
-
 }
 
 export {Glview};

@@ -29,7 +29,9 @@ const frag_prog_proto = {
     res: { width: 900, height: 700}
 };
 
-const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {}];
+// const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {}];
+uvtest.chain = [brownian];
+const pgms = [uvtest];
 
 
 const glview = new Glview(document.querySelector('#disp'), pgms, null, null, 0);
