@@ -97,6 +97,7 @@ function gl_fields(gl, prog){
     return prog;
 }
 
+
 class GlProg{
 
     constructor(prog){
@@ -107,8 +108,8 @@ class GlProg{
         this.bufferInfo = null;
         this.uniforms = prog.uniforms;
         this.req = null;
-        this.haschain = (this.prog.chain && this.prog.chain.length);
-        this.render = this.haschain ? pgm_chain_render.bind(this) : pgm_render.bind(this);
+        this.chain = (this.prog.chain && this.prog.chain.length)? [] : null;
+        this.render = this.chain ? pgm_chain_render.bind(this) : pgm_render.bind(this);
         this.pgm = {
             uniforms : this.uniforms,
             arrays : this.prog.arrays,
@@ -121,14 +122,12 @@ class GlProg{
             this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key]));   
         this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
-        if(!node)
-            this.gl.canvas.onpointermove = (e)=>{
-                this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY;
-            }    
+        this.gl.canvas.onpointermove = node ? null : (e)=>{
+            this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY;
+        }    
         twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
         this.prog.setupcb(this.pgm);
-        if(this.haschain){ 
-            this.chain = [];
+        if(this.chain){ 
             for(let i = 0; i < this.prog.chain.length; i++){
                 this.prog.ctl.addProgram(this.prog.chain[i], this.chain); 
                 this.chain[i].init();
@@ -178,12 +177,9 @@ class Glview{
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-        for(const p of this.fsprogs){
-            this.addProgram(p, this.programs, true);
-        }
-
-        for(const p of this.programs){
-            p.init();     
+        for(let i = 0; i < this.fsprogs.length; i++){
+            this.addProgram(this.fsprogs[i], this.programs);
+            this.programs[i].init();
         }
 
         this.switchPogram(this.active);
