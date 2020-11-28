@@ -4,7 +4,7 @@ import * as dat from "./modules/dat.gui.module.min.js";
 /* import scenes / shaders here */
 import ball_fs from "./shaders/ball.fs.js";
 import tex_prog from "./scenes/tex_test.js";
-import arraytex_prog from "./scenes/array_tex.js";
+import arraytex_prog from "./scenes/array_tex_2.js";
 import frag_test from "./scenes/frag_test.js";
 import brownian from "./scenes/brownian.js";
 import uvtest from "./scenes/uvtest.js";
@@ -30,7 +30,8 @@ const frag_prog_proto = {
 };
 
 // const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {}];
-uvtest.chain = [brownian];
+uvtest.chain = [arraytex_prog, brownian];
+uvtest.res = {width: 800, height: 700};
 const pgms = [uvtest];
 
 
