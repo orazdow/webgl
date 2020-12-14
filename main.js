@@ -24,12 +24,8 @@ import uvtest from "./scenes/uvtest.js";
 }
 */
 
-const frag_prog_proto = {
-    fs: ball_fs,
-    res: { width: 900, height: 700}
-};
 
-// const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {}];
+// const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {fs: ball_fs}];
 uvtest.chain = [arraytex_prog, brownian];
 uvtest.res = {width: 800, height: 700};
 const pgms = [uvtest];
