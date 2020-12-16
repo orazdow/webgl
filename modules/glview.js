@@ -41,7 +41,8 @@ const prog_default = {
     rendercb : ()=>{},
     setupcb : ()=>{},
     chain : null,
-    ctl: undefined
+    ctl: undefined,
+    on: true
 };
 
 function pgm_render(time){
@@ -69,6 +70,7 @@ function pgm_chain_render(time){
 }
 
 function chain_render(prog, uniforms){
+    if(prog.prog.on){
     prog.gl.useProgram(prog.programInfo.program);
     prog.uniforms.u_time = uniforms.u_time;
     prog.uniforms.u_resolution = uniforms.u_resolution;
@@ -76,11 +78,12 @@ function chain_render(prog, uniforms){
     prog.prog.rendercb(prog.pgm);
     twgl.setUniforms(prog.programInfo, prog.uniforms);
     twgl.drawBufferInfo(prog.gl, prog.bufferInfo, prog.drawtype);
+    }
 }
 
 function merge(dest, template){
     for(let prop in template){
-        if(!dest[prop]) dest[prop] = template[prop];
+        if(dest[prop] == null) dest[prop] = template[prop];
         else if(typeof dest[prop] === 'object'){
             for(let p in template[prop]){
                 if(!dest[prop][p]) dest[prop][p] = template[prop][p];
@@ -224,6 +227,7 @@ class Glview{
             p.gui = gui.addFolder(p.prog.gui.name); 
             if(p.prog.gui.open) p.gui.open();         
             if(hide){ p.gui.hide(); } 
+            let i = 0;
             if(p.prog.gui.fields)
             for(let o of p.prog.gui.fields){
                 let f;
@@ -231,7 +235,11 @@ class Glview{
                 let params = [o, Object.keys(o)[0], ...Object.values(o).slice(1)];
                 let g = p.gui.add(...params);
                 if(f){ g.onChange(f); }
+                p.prog.gui.fields[i++].ref = g;
             }
+            // if(p.prog.gui.switch){
+            //     p.gui.add({'' : p.prog.on}, '', p.prog.on).onChange((val)=>{p.prog.on = val;});
+            // }
         }
     }
 

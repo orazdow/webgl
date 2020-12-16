@@ -26,12 +26,13 @@ import uvtest from "./scenes/uvtest.js";
 
 
 // const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {fs: ball_fs}];
-uvtest.chain = [arraytex_prog, brownian];
-uvtest.res = {width: 800, height: 700};
-const pgms = [uvtest];
 
+const pgm = {fs : uvtest.fs, res: {width: 800, height: 700}};
+// let a2 = JSON.parse(JSON.stringify(arraytex_prog));
+// a2.gui.name = 'sdf';
+pgm.chain = [arraytex_prog,  brownian]
 
-const glview = new Glview(document.querySelector('#disp'), pgms, null, null, 0);
+const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
 
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";

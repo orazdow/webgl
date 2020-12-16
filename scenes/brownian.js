@@ -1,4 +1,4 @@
-const fshader = `#version 300 es
+const fshader = /*glsl*/`#version 300 es
 
 	precision mediump float;
 
@@ -31,7 +31,7 @@ xypoints.length = 16;
 xypoints.fill(0);
 
 let amount = 0.003;
-let rad = 15.0;
+let rad = 9.0;
 let _sink = 0;
 
 function setupcb (pgm){
