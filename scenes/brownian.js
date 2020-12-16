@@ -80,6 +80,7 @@ function reset(points){
 const gui = {
 	name: 'brownian',
 	open : true,
+	switch : true,
 	fields: [
 		{
 			amt: amount,

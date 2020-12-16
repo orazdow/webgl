@@ -1,19 +1,20 @@
-import texshaders from "../shaders/texshaders.js";
+import tex_fs from "../shaders/tex_gui.js";
+import pnglist from "./resource_list.js";
 
 const options = {
 	target: 'TEXTURE_2D_ARRAY',
-	src: ['./resources/anchorkin2.png',
-		'./resources/anchorkin.png',
-		'./resources/articulator.png',
-		'./resources/calcite.png',],
+	src: pnglist.full,
     min: 'LINEAR',
-    mag: 'NEAREST',
+    mag: 'LINEAR',
+    width: 900,
+    height: 800
+    // wrap: 'CLAMP_TO_EDGE'
 
 };
 
 const gui = {
-	name: 'pngs',
-	open: true,
+	name: 'bkd_png',
+	open: false,
 	switch: true,
 	fields: [
 	{
@@ -44,22 +45,12 @@ const gui = {
 		}
 	},
 	{
-		rot : 0.0,
-		min: -1.0,
-		max: 1.0,
-		step: 0.005,
-		onChange: (val)=>{
-			prog.uniforms.time = 0.0;
-			prog.uniforms.theta = val;
-		}
-	},
-	{
-		anim: 0.0,
-		min: 0.0,
-		max: 1.0,
+		yoffs: 0.0,
+		min: -0.75,
+		max: 0.75,
 		step: 0.01,
 		onChange: (val)=>{
-			prog.uniforms.aval = val;
+			prog.uniforms.yoffs = val;
 		}
 	},
 	{
@@ -80,12 +71,6 @@ const gui = {
 			prog.uniforms.alpha = val;
 		}
 	},
-	{
-		'' : true,
-		onChange: (val)=>{
-			prog.on = val;
-		}
-	}
 	]
 
 };
@@ -97,24 +82,21 @@ gui.fields[0].onChange = (val)=>{
 
 const prog = {
 	 // res: { width: 800, height: 600},
-	 vs: texshaders.vs,
-	 fs: texshaders.fs,
+	 fs: tex_fs,
 	 textures: {u_sampler : options},
 	 uniforms: {
 	 	idx : 0.0,
 	 	mixidx : 0.0,
 	 	scale : 1.0,
-	 	theta : 0.0,
-	 	aval : 0.0,
+	 	yoffs : 0.0,
+	 	avalz : 0.0,
 	 	alpha : 1.0
-	 	// vtrans : mat
 	 },
 	 // rendercb : rendercb,
 	  gui: gui,
-	  // on: false
+	  on: false
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 };
-
 
 
 export default prog;

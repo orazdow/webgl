@@ -64,13 +64,12 @@ function pgm_chain_render(time){
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
     for(let p of this.chain){
-        chain_render(p, this.uniforms);
+        if(p.prog.on) chain_render(p, this.uniforms);
     }
     this.req = requestAnimationFrame(this.render);
 }
 
 function chain_render(prog, uniforms){
-    if(prog.prog.on){
     prog.gl.useProgram(prog.programInfo.program);
     prog.uniforms.u_time = uniforms.u_time;
     prog.uniforms.u_resolution = uniforms.u_resolution;
@@ -78,7 +77,6 @@ function chain_render(prog, uniforms){
     prog.prog.rendercb(prog.pgm);
     twgl.setUniforms(prog.programInfo, prog.uniforms);
     twgl.drawBufferInfo(prog.gl, prog.bufferInfo, prog.drawtype);
-    }
 }
 
 function merge(dest, template){
@@ -86,7 +84,7 @@ function merge(dest, template){
         if(dest[prop] == null) dest[prop] = template[prop];
         else if(typeof dest[prop] === 'object'){
             for(let p in template[prop]){
-                if(!dest[prop][p]) dest[prop][p] = template[prop][p];
+                if(dest[prop][p] == null) dest[prop][p] = template[prop][p];
             }
         }
     }
@@ -237,9 +235,10 @@ class Glview{
                 if(f){ g.onChange(f); }
                 p.prog.gui.fields[i++].ref = g;
             }
-            // if(p.prog.gui.switch){
-            //     p.gui.add({'' : p.prog.on}, '', p.prog.on).onChange((val)=>{p.prog.on = val;});
-            // }
+            if(p.prog.gui.switch){
+               let _p = p.gui.add({'' : p.prog.on}, '', p.prog.on);
+               _p.onChange((val)=>{p.prog.on = val;});
+            }
         }
     }
 

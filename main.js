@@ -4,10 +4,13 @@ import * as dat from "./modules/dat.gui.module.min.js";
 /* import scenes / shaders here */
 import ball_fs from "./shaders/ball.fs.js";
 import tex_prog from "./scenes/tex_test.js";
-import arraytex_prog from "./scenes/array_tex_2.js";
+import arraytex_prog from "./scenes/array_tex.js";
+import arraytex_bkgd from "./scenes/array_tex_bkd.js";
 import frag_test from "./scenes/frag_test.js";
 import brownian from "./scenes/brownian.js";
 import uvtest from "./scenes/uvtest.js";
+
+// import clone from "./clone.js";
 
 /* 
     fs: fs || null (default.fs),
@@ -29,8 +32,9 @@ import uvtest from "./scenes/uvtest.js";
 
 const pgm = {fs : uvtest.fs, res: {width: 800, height: 700}};
 // let a2 = JSON.parse(JSON.stringify(arraytex_prog));
-// a2.gui.name = 'sdf';
-pgm.chain = [arraytex_prog,  brownian]
+// let a2 =clone(arraytex_prog);
+// a2.gui.name = 'png2';
+pgm.chain = [ arraytex_bkgd, arraytex_prog, brownian]
 
 const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
 

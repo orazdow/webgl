@@ -1,73 +1,133 @@
-
-const fs = `#version 300 es
-precision mediump float;
-
-in vec2 v_texcoord;
-
-uniform mediump sampler2DArray u_sampler;
-uniform int u_idx;
-uniform float mixsig;
-
-out vec4 fragColor;
-
-
-	void main(){
-		fragColor = texture(u_sampler, vec3(v_texcoord, u_idx));
-	}
-
-`;
-
-const i_fps = 1.0 / 60.0;
-
-let sig = {
-    freq : 0,
-    phase : 0,
-    out : 0,
-};
-
-let idx = {val: 0}
-
-function inc_ramp_int(sig, dt, intp, max) {
-	sig.phase += dt*i_fps;
-	if(sig.phase >= 1){
-		sig.phase -= 1;
-		intp.val = (intp.val+1)%max;
-	}
-	sig.out = sig.phase;	
-}
-
-const rendercb = (pgm)=>{
-
-	inc_ramp_int(sig, 0.5, idx, 4);
-	pgm.uniforms.u_idx = idx.val;
-
-}
+import tex_fs from "../shaders/tex_gui.js";
+import pnglist from "./resource_list.js";
 
 const options = {
 	target: 'TEXTURE_2D_ARRAY',
-	src: ['./resources/anchorkin.png',
-		'./resources/anchorkin2.png',
-		'./resources/articulator.png',
-		'./resources/calcite.png',],
+	src: pnglist.mini,
     min: 'LINEAR',
     mag: 'NEAREST',
+    // width: 900,
+    // height: 800
 
 };
 
 const gui = {
-	name: 'pngs'
+	name: 'png',
+	open: true,
+	switch: true,
+	fields: [
+	{
+		idx : 0,
+		min: 0,
+		max: options.src.length-1,
+		step: 1,
+		onChange: (val)=>{
+			prog.uniforms.idx = val;
+		}
+	},
+	{
+		mix : 0,
+		min: -1,
+		max: options.src.length-1,
+		step: 1,
+		onChange: (val)=>{
+			prog.uniforms.mixidx = val;
+		}
+	},
+	{
+		scale : 1.0,
+		min: 0.0,
+		max: 2.0,
+		step: 0.01,
+		onChange: (val)=>{
+			prog.uniforms.scale = val;
+		}
+	},
+	{
+		rot : 0.0,
+		min: -1.0,
+		max: 1.0,
+		step: 0.005,
+		onChange: (val)=>{
+			prog.uniforms.time = 0.0;
+			prog.uniforms.theta = val;
+		}
+	},
+	{
+		offset : 0.0,
+		min: 0.0,
+		max: 3.1416,
+		step: 0.01,
+		onChange: (val)=>{
+			prog.uniforms.offs = val;
+		}
+	},
+	{
+		anim: 0.0,
+		min: 0.0,
+		max: 1.0,
+		step: 0.01,
+		onChange: (val)=>{
+			prog.uniforms.aval = val;
+		}
+	},
+	{
+		zanim: 0.0,
+		min: 0.0,
+		max: 1.0,
+		step: 0.01,
+		onChange: (val)=>{
+			prog.uniforms.avalz = val;
+		}
+	},
+	{
+		alpha : 1.0,
+		min : 0.0,
+		max : 1.0,
+		step: 0.01,
+		onChange: (val)=>{
+			prog.uniforms.alpha = val;
+		}
+	},
+	// {
+	// 	reset : ()=>{ gui_reset(); }
+	// }
+	]
+
 };
 
+const gui_reset = ()=>{
+	gui.fields[0].ref.setValue(0.0); //idx
+	gui.fields[1].ref.setValue(0.0); //mix
+	gui.fields[2].ref.setValue(1.0); //scale
+	gui.fields[3].ref.setValue(0.0); //rot
+	gui.fields[4].ref.setValue(0.0); //offset
+	gui.fields[5].ref.setValue(0.0); //anim
+	gui.fields[6].ref.setValue(0.0); //zanim
+	gui.fields[7].ref.setValue(1.0); //alpha
+}
+
+gui.fields[0].onChange = (val)=>{
+	prog.uniforms.idx = val;
+	gui.fields[1].ref.setValue(val);
+}
+
 const prog = {
-	 res: { width: 800, height: 600},
-	 fs: fs,
+	 // res: { width: 800, height: 600},
+	 fs: tex_fs,
 	 textures: {u_sampler : options},
 	 uniforms: {
-	 	u_idx : 0,
-	 	mixsig: 1
+	 	idx : 0.0,
+	 	mixidx : 0.0,
+	 	scale : 1.0,
+	 	theta : 0.0,
+	 	aval : 0.0,
+	 	alpha : 1.0,
+	 	offs: 0.0
 	 },
-	 rendercb : rendercb,
-	 // gui: gui
+	 // rendercb : rendercb,
+	  gui: gui,
+	  on: true
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 };
 
