@@ -66,4 +66,4 @@ out vec4 fragColor;
 
 `;
 
-export default f2;
+export default f1;

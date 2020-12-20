@@ -19,7 +19,6 @@ const fshader = /*glsl*/`#version 300 es
 	    }
 
 	    c *= 0.002;
-
     	fragColor = vec4( c );
 
 	}
