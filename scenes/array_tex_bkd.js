@@ -6,8 +6,8 @@ const options = {
 	src: pnglist.full,
     min: 'LINEAR',
     mag: 'LINEAR',
-    width: 900,
-    height: 800
+    width: 1024,
+    height: 1024
     // wrap: 'CLAMP_TO_EDGE'
 
 };

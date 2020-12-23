@@ -20,11 +20,9 @@ uniform float yoffs;
 
 out vec4 fragColor;
 
-const float pngscale = 0.28;
-const vec2 estimate = vec2(900, 800);
-
+// const float pngscale = 1.;
+// const vec2 estimate = vec2(1024.);
 #define rot(a) mat2(cos(a), -sin(a), sin(a), cos(a))
-
 
 float tri(float t){
 	return (abs(fract(t)-0.5)*2.0);
@@ -54,16 +52,15 @@ vec4 mixvec(sampler2DArray samp, vec2 coord, float idx){
 
 	void main(){
 
-		vec2 dimensions = u_resolution / (estimate*pngscale);
-
-		vec2 mouse = (u_mouse/u_resolution);	
+		// vec2 dimensions = u_resolution / (estimate*pngscale);
+		// vec2 mouse = (u_mouse/u_resolution);	
 
 		vec2 anim = animv(u_time*0.3, vec2(0.4,0.9));
 		vec2 anim2 = animv2(offs, vec2(4.,3.));
 
 		float s = mix(scale, fract(u_time*0.04)*2.,avalz);
 
-		vec2 texcoord = ((v_texcoord));
+		vec2 texcoord = (v_texcoord);
 		texcoord -= anim*aval;
 		texcoord += anim2;
 		texcoord -= vec2(0.5, 0.5-yoffs);

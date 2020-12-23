@@ -6,8 +6,8 @@ const options = {
 	src: pnglist.mini,
     min: 'LINEAR',
     mag: 'NEAREST',
-    // width: 900,
-    // height: 800
+    width: 1024,
+    height: 1024
 
 };
 
