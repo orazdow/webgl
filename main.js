@@ -40,7 +40,7 @@ arraytex_prog.on = false;
 // arraytex_prog.gui.open = false
 brownian.on = false;
 // brownian.gui.open = false;
-pgm.chain = [ arraytex_bkgd, wave,  arraytex_prog, brownian]
+pgm.chain = [ arraytex_bkgd,wave,  arraytex_prog, brownian]
 
 const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
 

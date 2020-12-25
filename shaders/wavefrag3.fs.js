@@ -10,36 +10,30 @@ uniform float v1;
 uniform float v2;
 uniform float v3;
 uniform float v4;
-
-// float blur(vec2 v){
-    
-// }
-
-#define sofs(x) vec2(sin(x*6.28)*0.5+0.5, cos(x*6.28)*0.5+0.5)
+uniform float v5;
 
 out vec4 fragColor;
-
 
     void main(){
 
     	vec2 uv = gl_FragCoord.xy/(u_resolution*v3);
 
-    	vec2 p = vec2(0.9,1.2); //vec2(u_mouse.xy/u_resolution);
+    	vec2 p = vec2(v4*2.,1.4); //vec2(u_mouse.xy/u_resolution);
 
-    	for(float i = 1.; i < v2; i++){
-            // p += (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
+    	for(float i = 1.; i < 14.; i++){
+             p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
 
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y))));
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y))));
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x+1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x+1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y))));
 
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x+1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x+1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y-1.))));
 
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y+1.))));
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y+1.))));
-            p -= (v1*vec2(i*p.y*sin(u_time+p.x*(uv.x+1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y+1.))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y+1.))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x-1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y+1.))));
+            p -= (0.5*v1*vec2(i*p.y*sin(u_time+p.x*(uv.x+1.)), i*p.x*p.y*sin(0.3*u_time+i+(uv.y+1.))));
 
 
             p *= 0.7;

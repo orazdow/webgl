@@ -83,6 +83,7 @@ function merge(dest, template){
     for(let prop in template){
         if(dest[prop] == null) dest[prop] = template[prop];
         else if(typeof dest[prop] === 'object'){
+            if(!(dest[prop] instanceof Array))
             for(let p in template[prop]){
                 if(dest[prop][p] == null) dest[prop][p] = template[prop][p];
             }
@@ -111,6 +112,7 @@ class GlProg{
         this.req = null;
         this.chain = (this.prog.chain && this.prog.chain.length)? [] : null;
         this.render = this.chain ? pgm_chain_render.bind(this) : pgm_render.bind(this);
+        prog.glprog = this;
         this.pgm = {
             uniforms : this.uniforms,
             arrays : this.prog.arrays,
@@ -120,8 +122,16 @@ class GlProg{
 
     init(node){
         for(let key in this.prog.textures) 
-            this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key]));   
-        this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
+            this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key])); 
+        
+        if(this.prog.fs instanceof Array){
+            this.fsprogs = [];
+            for(let fs of this.prog.fs)
+                this.fsprogs.push( twgl.createProgramInfo(this.gl, [this.prog.vs, fs]) );        
+            this.programInfo = this.fsprogs[0];
+        }else{
+            this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
+        }
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
         this.gl.canvas.onpointermove = node ? null : (e)=>{
             this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY;
