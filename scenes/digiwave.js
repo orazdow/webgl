@@ -33,6 +33,7 @@ const wavefrag = /*glsl*/ `#version 300 es
         // fragColor = vec4(p.x*p.y*2., p.y, p.x+p.y, 1.);
         fragColor = vec4(sin(p.x*100.)*0.5+0.5, (sin(p.x*100.)*0.5+0.5), sin(p.y*100.)*0.5+0.5, 1.);
         fragColor.w = smoothstep(0.49, v5, 1.-fragColor.z);
+        // fragColor.w = step(0.54, 1.-fragColor.z)*v5;
     }
 
 `;
@@ -67,6 +68,42 @@ const wavefrag2 = /*glsl*/ `#version 300 es
 
 	}
 `;
+
+const _wavefrag2 = /*glsl*/ `#version 300 es
+
+	precision mediump float;
+	                           
+	uniform vec2 u_resolution;  
+	uniform float u_time;  
+	uniform float v1;
+	uniform float v2;
+	uniform float v3;
+	uniform float v4;
+	uniform float v5;
+
+	out vec4 fragColor;
+
+	void main(){
+
+	    vec2 uv = (4.*v3)*gl_FragCoord.xy/u_resolution.xy;
+
+	    vec3 col = vec3(0.,0.,0.);
+	    
+	    vec2 p = vec2(1.4,0.5);
+	    
+	    for(float i = 1.; i <12.; i++){
+	        p *= vec2(
+	                p.y+i*sin(2.*v4*0.12*u_time+p.x+(p.y*uv.x*4.)),
+	                p.x+i*sin(0.09*u_time+p.y+(p.x*uv.y*5.))
+	                )*(0.6+0.5*v1); //.9
+	    }
+
+	    fragColor = vec4( vec3(0.6*(sin(p.x*p.y)*0.5+0.5), 0.3*(sin(p.x*p.y)*0.5+0.5), sin(p.x+p.y)*0.5+0.5) ,1.0);
+	    fragColor.w = v5+(1.-v5)*step(0.1, 0.33*(fragColor.x+fragColor.y+fragColor.z))*max(0.7,v5);
+
+	}
+`;
+
 
 
 const wavefrag3 = /*glsl*/`#version 300 es
@@ -162,17 +199,49 @@ out vec4 fragColor;
 
 `;
 
+const wavefrag5 = /*glsl*/`#version 300 es
+
+precision highp float;
+
+uniform vec2 u_resolution;  
+uniform vec2 u_mouse;  
+uniform float u_time; 
+uniform float v1;
+uniform float v2;
+uniform float v3;
+uniform float v4;
+uniform float v5; 
+
+out vec4 fragColor;
+
+	void main(){
+
+		vec2 p = 2.*gl_FragCoord.xy/u_resolution/v3*0.5;
+		for(int n=1; n<9; n++){
+			float i = float(n);
+			p += vec2(
+				0.8*(sin(i*p.y+u_time*v4*1.2))+7.8,
+				2.*v4*(sin(2.+i*p.x+u_time*v4+p.y))+1.6
+			)*v1*0.8;
+		}
+		fragColor = vec4(0.5*sin(p.x)+0.5,0.1*sin(p.y)+0.2,sin(p.x+p.y),1.0);
+		fragColor.w = min(1.,v5*2.)*step((1.-v5)*1.7, 1.5-dot(fragColor.xyz, vec3(0.9, 0.2, 0.2)));
+		fragColor.w *=v5;
+	}
+
+`;
+
 const idx = 0;
 
 const gui = {
     name: 'bubb',
-    open: true,
+    open: false,
     switch: true,
     fields:[
     	{
             idx: idx,
             min: 0,
-            max: 3,
+            max: 4,
             step: 1,   		
     	},
         {
@@ -204,7 +273,7 @@ const gui = {
             onChange : (v)=>{prog.uniforms.v4 = v;}
         },
         {
-            thresh: idx ? 1. : 0.6,
+            thresh: idx ? 1. : 0.7,
             min: 0.0,
             max: 1.0,
             step: 0.01,
@@ -216,19 +285,7 @@ const gui = {
 gui.fields[0].onChange = (val)=>{
 	prog.glprog.programInfo = prog.glprog.fsprogs[val];
 	let g = prog.glprog.gui;
-	switch(val){
-		case 0:
-			for(let i = 1; i < g.__controllers.length-2; i++)
-				g.__controllers[i].__li.style.display = "";
-		break;
-		case 1: 
-			for(let i = 1; i < g.__controllers.length-2; i++)
-				g.__controllers[i].__li.style.display =  "none";
-		break;
-		default:
-			for(let i = 1; i < g.__controllers.length-2; i++)
-				g.__controllers[i].__li.style.display =  (i === 2)? "none" : "";
-	}
+	g.__controllers[2].__li.style.display = val? "none" : "";
 }
 
 function setupcb() {
@@ -237,14 +294,14 @@ function setupcb() {
 
 const prog = {
 	 // res: { width: 800, height: 600},
-	 fs: [wavefrag, wavefrag2, wavefrag3, wavefrag4],
+	 fs: [wavefrag, _wavefrag2, wavefrag3, wavefrag4, wavefrag5],
 	 uniforms: {
 	 	idx: idx,
         v1: 0.7, 
-        v2: 22.0, 
+        v2: 24.0, 
         v3: 0.21, 
         v4: 0.6,
-        v5: idx ? 1. : 0.6
+        v5: idx ? 1. : 0.7
 	 },
 	 // rendercb : rendercb,
 	  setupcb : setupcb,

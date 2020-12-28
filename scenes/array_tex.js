@@ -3,7 +3,7 @@ import pnglist from "./resource_list.js";
 
 const options = {
 	target: 'TEXTURE_2D_ARRAY',
-	src: pnglist.mini,
+	src: pnglist.full,
     min: 'LINEAR',
     mag: 'NEAREST',
     width: 1024,
@@ -13,7 +13,7 @@ const options = {
 
 const gui = {
 	name: 'png',
-	open: true,
+	open: false,
 	switch: true,
 	fields: [
 	{
@@ -127,7 +127,7 @@ const prog = {
 	 },
 	 // rendercb : rendercb,
 	  gui: gui,
-	  on: true
+	  on: false
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 };
 

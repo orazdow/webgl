@@ -10,6 +10,7 @@ const pngs = {
 		'./resources/cosmofine.png',
 		'./resources/eye.png',
 		'./resources/ria.png',
+		'./resources/dawn.png',
 		'./resources/fluvia.png',
 		'./resources/LU.png',
 		'./resources/lu_hand.png',
@@ -46,7 +47,9 @@ const pngs = {
 		'./resources/plastics.png',
 		'./resources/tree.png'
 		],
-	frogs : ['./resources/ria.png']
+	frogs : ['./resources/ria.png',
+			'./resources/dawn.png'
+		]
 
 
 };

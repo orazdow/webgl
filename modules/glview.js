@@ -62,7 +62,7 @@ function pgm_chain_render(time){
     this.prog.rendercb(this.pgm);
     twgl.setUniforms(this.programInfo, this.uniforms);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-    twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
+    if(this.prog.on)twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
     for(let p of this.chain){
         if(p.prog.on) chain_render(p, this.uniforms);
     }
@@ -211,7 +211,7 @@ class Glview{
         arr.push(new GlProg(fsprog));
     }
 
-    initGui(gui){
+    initGui(gui){ 
 
         if(this.programs.length > 1)
         gui.add(this.gui_ctl, 'pgm', 0, this.programs.length-1, 1).onChange((val)=>{
@@ -232,7 +232,8 @@ class Glview{
 
     initSubGui(gui, p, hide){
         if(p.prog.gui){
-            p.gui = gui.addFolder(p.prog.gui.name); 
+            p.gui = gui.addFolder(p.prog.gui.name);
+            p.gui.title = p.gui.__ul.firstChild;
             if(p.prog.gui.open) p.gui.open();         
             if(hide){ p.gui.hide(); } 
             let i = 0;
@@ -245,9 +246,13 @@ class Glview{
                 if(f){ g.onChange(f); }
                 p.prog.gui.fields[i++].ref = g;
             }
+            p.gui.title.style.color = p.prog.on ? "springgreen" : "white";
             if(p.prog.gui.switch){
                let _p = p.gui.add({'' : p.prog.on}, '', p.prog.on);
-               _p.onChange((val)=>{p.prog.on = val;});
+               _p.onChange((val)=>{
+                p.prog.on = val;
+                p.gui.title.style.color = p.prog.on ? "springgreen" : "white";
+            });
             }
         }
     }

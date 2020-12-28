@@ -3,15 +3,14 @@ import * as dat from "./modules/dat.gui.module.min.js";
 
 /* import scenes / shaders here */
 import ball_fs from "./shaders/ball.fs.js";
-import tex_prog from "./scenes/tex_test.js";
-import arraytex_prog from "./scenes/array_tex.js";
-import arraytex_bkgd from "./scenes/array_tex_bkd.js";
-import frag_test from "./scenes/frag_test.js";
+import tex_prog from "./scenes/array_tex.js";
+import tex_progb from "./scenes/array_tex_b.js";
+import tex_bkgd from "./scenes/array_tex_bkd.js";
 import brownian from "./scenes/brownian.js";
-import uvtest from "./scenes/uvtest.js";
 import wavefrag from "./shaders/wavefrag4.fs.js";
 import wave from "./scenes/digiwave.js";
-// import clone from "./clone.js";
+import spacebkgd from "./scenes/spacebkgd.js";
+import bkgd from "./scenes/bkgd.js";
 
 /* 
     fs: fs || null (default.fs),
@@ -28,19 +27,14 @@ import wave from "./scenes/digiwave.js";
 }
 */
 
-// const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {fs: ball_fs}];
+const pgm = bkgd;
+pgm.res = {width: 800, height: 700};
 
-const pgm = {fs : uvtest.fs, res: {width: 800, height: 700}};
-// let a2 = JSON.parse(JSON.stringify(arraytex_prog));
-// let a2 =clone(arraytex_prog);
-// a2.gui.name = 'png2';
-arraytex_bkgd.gui.open = true;
-arraytex_bkgd.on = true;
-arraytex_prog.on = false;
-// arraytex_prog.gui.open = false
-brownian.on = false;
-// brownian.gui.open = false;
-pgm.chain = [ arraytex_bkgd,wave,  arraytex_prog, brownian]
+spacebkgd.on = true;
+tex_bkgd.on = true;
+tex_bkgd.gui.open = true;
+
+pgm.chain = [/*{},*/ spacebkgd, tex_bkgd, wave, tex_prog, brownian];
 
 const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
 
