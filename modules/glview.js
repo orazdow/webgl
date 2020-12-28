@@ -41,7 +41,8 @@ const prog_default = {
     rendercb : ()=>{},
     setupcb : ()=>{},
     chain : null,
-    ctl: undefined
+    ctl: undefined,
+    on: true
 };
 
 function pgm_render(time){
@@ -61,9 +62,9 @@ function pgm_chain_render(time){
     this.prog.rendercb(this.pgm);
     twgl.setUniforms(this.programInfo, this.uniforms);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-    twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
+    if(this.prog.on)twgl.drawBufferInfo(this.gl, this.bufferInfo, this.drawtype);
     for(let p of this.chain){
-        chain_render(p, this.uniforms);
+        if(p.prog.on) chain_render(p, this.uniforms);
     }
     this.req = requestAnimationFrame(this.render);
 }
@@ -80,10 +81,11 @@ function chain_render(prog, uniforms){
 
 function merge(dest, template){
     for(let prop in template){
-        if(!dest[prop]) dest[prop] = template[prop];
+        if(dest[prop] == null) dest[prop] = template[prop];
         else if(typeof dest[prop] === 'object'){
+            if(!(dest[prop] instanceof Array))
             for(let p in template[prop]){
-                if(!dest[prop][p]) dest[prop][p] = template[prop][p];
+                if(dest[prop][p] == null) dest[prop][p] = template[prop][p];
             }
         }
     }
@@ -110,6 +112,7 @@ class GlProg{
         this.req = null;
         this.chain = (this.prog.chain && this.prog.chain.length)? [] : null;
         this.render = this.chain ? pgm_chain_render.bind(this) : pgm_render.bind(this);
+        prog.glprog = this;
         this.pgm = {
             uniforms : this.uniforms,
             arrays : this.prog.arrays,
@@ -119,8 +122,16 @@ class GlProg{
 
     init(node){
         for(let key in this.prog.textures) 
-            this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key]));   
-        this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
+            this.uniforms[key] = twgl.createTexture(this.gl, gl_fields(this.gl, this.prog.textures[key])); 
+        
+        if(this.prog.fs instanceof Array){
+            this.fsprogs = [];
+            for(let fs of this.prog.fs)
+                this.fsprogs.push( twgl.createProgramInfo(this.gl, [this.prog.vs, fs]) );        
+            this.programInfo = this.fsprogs[0];
+        }else{
+            this.programInfo = twgl.createProgramInfo(this.gl, [this.prog.vs, this.prog.fs]);
+        }
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, this.prog.arrays);
         this.gl.canvas.onpointermove = node ? null : (e)=>{
             this.uniforms.u_mouse[0] = e.offsetX; this.uniforms.u_mouse[1] = e.offsetY;
@@ -200,7 +211,7 @@ class Glview{
         arr.push(new GlProg(fsprog));
     }
 
-    initGui(gui){
+    initGui(gui){ 
 
         if(this.programs.length > 1)
         gui.add(this.gui_ctl, 'pgm', 0, this.programs.length-1, 1).onChange((val)=>{
@@ -221,9 +232,11 @@ class Glview{
 
     initSubGui(gui, p, hide){
         if(p.prog.gui){
-            p.gui = gui.addFolder(p.prog.gui.name); 
+            p.gui = gui.addFolder(p.prog.gui.name);
+            p.gui.title = p.gui.__ul.firstChild;
             if(p.prog.gui.open) p.gui.open();         
             if(hide){ p.gui.hide(); } 
+            let i = 0;
             if(p.prog.gui.fields)
             for(let o of p.prog.gui.fields){
                 let f;
@@ -231,6 +244,15 @@ class Glview{
                 let params = [o, Object.keys(o)[0], ...Object.values(o).slice(1)];
                 let g = p.gui.add(...params);
                 if(f){ g.onChange(f); }
+                p.prog.gui.fields[i++].ref = g;
+            }
+            p.gui.title.style.color = p.prog.on ? "springgreen" : "white";
+            if(p.prog.gui.switch){
+               let _p = p.gui.add({'' : p.prog.on}, '', p.prog.on);
+               _p.onChange((val)=>{
+                p.prog.on = val;
+                p.gui.title.style.color = p.prog.on ? "springgreen" : "white";
+            });
             }
         }
     }

@@ -1,11 +1,12 @@
-const fshader = `#version 300 es
+const fshader = /*glsl*/`#version 300 es
 
 	precision mediump float;
 
-	uniform vec2 points[8];
+	uniform vec2 points[64];
 	uniform float radius;
 	uniform float u_time;
 	uniform vec2 u_resolution;
+	uniform int num;
 	out vec4 fragColor; 
 
 	void main(){
@@ -14,35 +15,49 @@ const fshader = `#version 300 es
 
 	    vec2 uv = (2.*gl_FragCoord.xy-u_resolution.xy)/u_resolution.y;
 
-	    for(int i = 0; i < 8; i++){
+	    for(int i = 0; i < num; i++){
 	    	c += radius/distance(uv, points[i]);
 	    }
 
-	    c *= 0.002;
-
-    	fragColor = vec4( c );
+	    c *=0.002;
+	    // c /= float(num);
+    	fragColor = vec4( vec3(1.), c );
 
 	}
 
 `;
 
 let xypoints = [];
-xypoints.length = 16;
+xypoints.length = 64;
 xypoints.fill(0);
 
 let amount = 0.003;
-let rad = 15.0;
+let rad = 4.0;
 let _sink = 0;
+let cnt = 0;
+let interval = 2;
+let hz = 2.*0.0167/interval;
+let coef = 1;
+let osc = 0;
+let oscmode = 0;
+let num = 8;
 
 function setupcb (pgm){
 	for(let i = 0; i < pgm.uniforms.points.length; i++){
-		pgm.uniforms.points[i] = Math.random()*2-1.0;
+		pgm.uniforms.points[i] = Math.random()*1.8-0.9;
 	}
 }
 
 function rendercb (pgm){
-	preturb_sinkXY(pgm.uniforms.points, amount, _sink);
+	preturb_sinkXY(pgm.uniforms.points, amount, coef*_sink-(osc*0.0004));
 	pgm.uniforms.radius = rad;
+	cnt += hz;
+	coef = (osc-oscmode)*Math.cos(cnt) + Math.abs(1.-osc) + oscmode;
+	if(cnt >= 6.831){
+		cnt -= 6.831;
+		if(osc*oscmode)
+			reset(pgm.uniforms.points);
+	}
 }
 
 
@@ -79,7 +94,8 @@ function reset(points){
 
 const gui = {
 	name: 'brownian',
-	open : true,
+	open : false,
+	switch : true,
 	fields: [
 		{
 			amt: amount,
@@ -90,7 +106,17 @@ const gui = {
 		},
 		{
 			radius: rad,
+			min: 1,
+			max: 18,
+			step: 0.1,
 			onChange: (val)=>{rad = val;}
+		},
+		{
+			num: num,
+			min: 8,
+			max: 32,
+			step: 1,
+			onChange: (val)=>{prog.uniforms.num = val;}
 		},
 		{
 			sink: _sink,
@@ -98,6 +124,24 @@ const gui = {
 			max: 1,
 			step: 0.0001,
 			onChange: (val)=>{_sink = val*0.01;}			
+		},
+		// {
+		// 	osc: false,
+		// 	onChange: (val)=>{osc = val ? 1 : 0;}
+		// },
+		{
+			oscmode: oscmode,
+			min: 0,
+			max: 2,
+			step: 1,
+			onChange: (val)=>{osc = +(val > 0); oscmode = Math.max(0,val-1);}
+		},
+		{
+			period: interval,
+			min: 1,
+			max: 10,
+			step: 0.01,
+			onChange: (val)=>{ interval = val; hz = 2.*0.0167/interval; }
 		},
 		{
 			reset : ()=>{ reset(prog.uniforms.points); }
@@ -113,9 +157,11 @@ const prog = {
 	rendercb : rendercb,
 	uniforms : {
 		points : xypoints,
-		radius: rad
+		radius: rad,
+		num: num
 	},
 	gui : gui,
+	on: false,
 	// clearcolor: [0.2, 0.8, 0.0, 1],
 
 };

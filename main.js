@@ -3,11 +3,14 @@ import * as dat from "./modules/dat.gui.module.min.js";
 
 /* import scenes / shaders here */
 import ball_fs from "./shaders/ball.fs.js";
-import tex_prog from "./scenes/tex_test.js";
-import arraytex_prog from "./scenes/array_tex.js";
-import frag_test from "./scenes/frag_test.js";
+import tex_prog from "./scenes/array_tex.js";
+import tex_progb from "./scenes/array_tex_b.js";
+import tex_bkgd from "./scenes/array_tex_bkd.js";
 import brownian from "./scenes/brownian.js";
-import uvtest from "./scenes/uvtest.js";
+import wavefrag from "./shaders/wavefrag4.fs.js";
+import wave from "./scenes/digiwave.js";
+import spacebkgd from "./scenes/spacebkgd.js";
+import bkgd from "./scenes/bkgd.js";
 
 /* 
     fs: fs || null (default.fs),
@@ -24,17 +27,16 @@ import uvtest from "./scenes/uvtest.js";
 }
 */
 
-const frag_prog_proto = {
-    fs: ball_fs,
-    res: { width: 900, height: 700}
-};
+const pgm = bkgd;
+pgm.res = {width: 800, height: 700};
 
-// const pgms = [brownian, uvtest, arraytex_prog, frag_prog_proto, tex_prog, {}];
-uvtest.chain = [brownian];
-const pgms = [uvtest];
+spacebkgd.on = true;
+tex_bkgd.on = true;
+tex_bkgd.gui.open = true;
 
+pgm.chain = [/*{},*/ spacebkgd, tex_bkgd, wave, tex_prog, brownian];
 
-const glview = new Glview(document.querySelector('#disp'), pgms, null, null, 0);
+const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
 
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";

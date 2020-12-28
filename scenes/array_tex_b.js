@@ -12,7 +12,7 @@ const options = {
 };
 
 const gui = {
-	name: 'png',
+	name: 'pngb',
 	open: false,
 	switch: true,
 	fields: [

@@ -5,14 +5,15 @@ const options = {
 	target: 'TEXTURE_2D_ARRAY',
 	src: pnglist.full,
     min: 'LINEAR',
-    mag: 'NEAREST',
+    mag: 'LINEAR',
     width: 1024,
     height: 1024
+    // wrap: 'CLAMP_TO_EDGE'
 
 };
 
 const gui = {
-	name: 'png',
+	name: 'bkd_png',
 	open: false,
 	switch: true,
 	fields: [
@@ -44,31 +45,12 @@ const gui = {
 		}
 	},
 	{
-		rot : 0.0,
-		min: -1.0,
-		max: 1.0,
-		step: 0.005,
-		onChange: (val)=>{
-			prog.uniforms.time = 0.0;
-			prog.uniforms.theta = val;
-		}
-	},
-	{
-		offset : 0.0,
-		min: 0.0,
-		max: 3.1416,
+		yoffs: 0.0,
+		min: -0.75,
+		max: 0.75,
 		step: 0.01,
 		onChange: (val)=>{
-			prog.uniforms.offs = val;
-		}
-	},
-	{
-		anim: 0.0,
-		min: 0.0,
-		max: 1.0,
-		step: 0.01,
-		onChange: (val)=>{
-			prog.uniforms.aval = val;
+			prog.uniforms.yoffs = val;
 		}
 	},
 	{
@@ -89,23 +71,9 @@ const gui = {
 			prog.uniforms.alpha = val;
 		}
 	},
-	// {
-	// 	reset : ()=>{ gui_reset(); }
-	// }
 	]
 
 };
-
-const gui_reset = ()=>{
-	gui.fields[0].ref.setValue(0.0); //idx
-	gui.fields[1].ref.setValue(0.0); //mix
-	gui.fields[2].ref.setValue(1.0); //scale
-	gui.fields[3].ref.setValue(0.0); //rot
-	gui.fields[4].ref.setValue(0.0); //offset
-	gui.fields[5].ref.setValue(0.0); //anim
-	gui.fields[6].ref.setValue(0.0); //zanim
-	gui.fields[7].ref.setValue(1.0); //alpha
-}
 
 gui.fields[0].onChange = (val)=>{
 	prog.uniforms.idx = val;
@@ -120,17 +88,15 @@ const prog = {
 	 	idx : 0.0,
 	 	mixidx : 0.0,
 	 	scale : 1.0,
-	 	theta : 0.0,
-	 	aval : 0.0,
-	 	alpha : 1.0,
-	 	offs: 0.0
+	 	yoffs : 0.0,
+	 	avalz : 0.0,
+	 	alpha : 1.0
 	 },
 	 // rendercb : rendercb,
 	  gui: gui,
-	  on: false
+	  on: true
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 };
-
 
 
 export default prog;
