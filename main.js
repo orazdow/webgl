@@ -11,6 +11,7 @@ import wavefrag from "./shaders/wavefrag4.fs.js";
 import wave from "./scenes/digiwave.js";
 import spacebkgd from "./scenes/spacebkgd.js";
 import bkgd from "./scenes/bkgd.js";
+import squares from "./scenes/vsquares.js";
 
 /* 
     fs: fs || null (default.fs),
@@ -36,7 +37,7 @@ tex_bkgd.gui.open = true;
 
 pgm.chain = [/*{},*/ spacebkgd, tex_bkgd, wave, tex_prog, brownian];
 
-const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
+const glview = new Glview(document.querySelector('#disp'), squares, null, null, 0);
 
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";
