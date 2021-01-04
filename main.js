@@ -32,12 +32,14 @@ const pgm = bkgd;
 pgm.res = {width: 800, height: 700};
 
 spacebkgd.on = true;
-tex_bkgd.on = true;
-tex_bkgd.gui.open = true;
+spacebkgd.uniforms.v1 = .2;
+spacebkgd.uniforms.v2 = .5;
+tex_bkgd.on = false;
+tex_bkgd.gui.open = false;
 
-pgm.chain = [/*{},*/ spacebkgd, tex_bkgd, wave, tex_prog, brownian];
+pgm.chain = [/*{},*/ spacebkgd, squares, tex_bkgd, wave, tex_prog, brownian];
 
-const glview = new Glview(document.querySelector('#disp'), squares, null, null, 0);
+const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
 
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";

@@ -57,6 +57,7 @@ function pgm_render(time){
 
 function pgm_chain_render(time){ 
     this.gl.useProgram(this.programInfo.program);
+    twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo); 
     this.uniforms.u_time = time * 0.001;
     this.uniforms.u_resolution = [this.gl.canvas.width, this.gl.canvas.height];
     this.prog.rendercb(this.pgm);
@@ -71,6 +72,7 @@ function pgm_chain_render(time){
 
 function chain_render(prog, uniforms){
     prog.gl.useProgram(prog.programInfo.program);
+    twgl.setBuffersAndAttributes(prog.gl, prog.programInfo, prog.bufferInfo); 
     prog.uniforms.u_time = uniforms.u_time;
     prog.uniforms.u_resolution = uniforms.u_resolution;
     prog.uniforms.u_mouse = uniforms.u_mouse;
@@ -152,6 +154,7 @@ class GlProg{
         twgl.resizeCanvasToDisplaySize(this.gl.canvas);
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         this.gl.useProgram(this.programInfo.program);
+        twgl.setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo); 
         this.gl.clearColor(...this.prog.clearcolor);
         this.req = requestAnimationFrame(this.render);
     }
@@ -171,7 +174,7 @@ class Glview{
         if(!canvas){ console.log('null canvas'); return; }
         canvas.style.backgroundColor = _bkgd || "";
         canvas.style.touchAction = "none";
-        let gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
+        let gl = canvas.getContext("webgl2", { premultipliedAlpha: false, antialias: true });
         window.sceneRef = this;
       
         this.prog = prog_default;
