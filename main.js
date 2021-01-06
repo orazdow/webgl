@@ -12,6 +12,8 @@ import wave from "./scenes/digiwave.js";
 import spacebkgd from "./scenes/spacebkgd.js";
 import bkgd from "./scenes/bkgd.js";
 import squares from "./scenes/vsquares.js";
+import duffing from "./scenes/duffing.js";
+import multi from "./scenes/multi.js";
 
 /* 
     fs: fs || null (default.fs),
@@ -37,9 +39,11 @@ spacebkgd.uniforms.v2 = .5;
 tex_bkgd.on = false;
 tex_bkgd.gui.open = false;
 
-pgm.chain = [/*{},*/ spacebkgd, squares, tex_bkgd, wave, tex_prog, brownian];
+multi.chain = [duffing]
 
-const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
+// pgm.chain = [/*{},*/ spacebkgd, squares, tex_bkgd, wave, tex_prog, brownian];
+
+const glview = new Glview(document.querySelector('#disp'), multi);
 
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";
