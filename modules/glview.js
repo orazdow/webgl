@@ -175,8 +175,8 @@ class Glview{
         canvas.style.backgroundColor = _bkgd || "";
         canvas.style.touchAction = "none";
         let gl = canvas.getContext("webgl2", { premultipliedAlpha: false, antialias: true });
-        window.sceneRef = this;
-      
+        window.sceneref = this;
+        
         this.prog = prog_default;
         this.prog.gl = gl;
         this.prog.res = _res || this.prog.res;

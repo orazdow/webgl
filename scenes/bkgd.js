@@ -17,7 +17,7 @@ const shader = /*glsl*/ `#version 300 es
 
         vec2 uv = gl_FragCoord.xy/u_resolution.xy;
 
-        vec2 col = ff(cos(uv.xy*vec2(0.,4.*v2)));
+        vec2 col = ff(cos(/*u_time+*/uv.xy*vec2(0.,4.*v2)));
         float x = 6.2*v1;
         float th = 1.;
         fragColor = vec4(v3*vec3(ff(cos(x)),ff(cos(x+th)),ff(cos(x+2.*th)))*col.xyy,v4);
