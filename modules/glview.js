@@ -182,6 +182,7 @@ class Glview{
         this.prog.res = _res || this.prog.res;
         this.prog.drawtype = gl.TRIANGLE_STRIP;
         this.prog.ctl = this; 
+        this.frag_limit = gl.getParameter(gl['MAX_FRAGMENT_UNIFORM_VECTORS']);
 
         this.gui_ctl = {
             pgm : this.active

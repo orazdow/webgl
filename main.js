@@ -40,6 +40,7 @@ tex_bkgd.on = false;
 tex_bkgd.gui.open = false;
 
 multi.chain = [duffing]
+multi.on = false
 
 // pgm.chain = [/*{},*/ spacebkgd, squares, tex_bkgd, wave, tex_prog, brownian];
 
