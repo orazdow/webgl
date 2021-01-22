@@ -11,6 +11,9 @@ import wavefrag from "./shaders/wavefrag4.fs.js";
 import wave from "./scenes/digiwave.js";
 import spacebkgd from "./scenes/spacebkgd.js";
 import bkgd from "./scenes/bkgd.js";
+import squares from "./scenes/vsquares.js";
+import duffing from "./scenes/duffing.js";
+import multi from "./scenes/multi.js";
 
 /* 
     fs: fs || null (default.fs),
@@ -31,12 +34,20 @@ const pgm = bkgd;
 pgm.res = {width: 800, height: 700};
 
 spacebkgd.on = true;
-tex_bkgd.on = true;
-tex_bkgd.gui.open = true;
+// spacebkgd.uniforms.v1 = .2;
+// spacebkgd.uniforms.v2 = .5;
+// tex_bkgd.on = true;
+// tex_bkgd.gui.open = true;
+// wave.on = true;
 
-pgm.chain = [/*{},*/ spacebkgd, tex_bkgd, wave, tex_prog, brownian];
+// multi.chain = [duffing]
+// multi.on = false
 
-const glview = new Glview(document.querySelector('#disp'), pgm, null, null, 0);
+pgm.chain = [/*{},*/ spacebkgd, /*multi,*/tex_bkgd, tex_prog, wave, squares, tex_progb, duffing, brownian];
+tex_prog.on = true;
+tex_prog.gui.open = true;
+
+const glview = new Glview(document.querySelector('#disp'), pgm);
 
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";

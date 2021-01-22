@@ -45,6 +45,15 @@ const gui = {
 		}
 	},
 	{
+		wobble : 0.0,
+		min: 0.0,
+		max: 1.0,
+		step: 0.001,
+		onChange: (val)=>{
+			prog.uniforms.wob = val;
+		}
+	},
+	{
 		yoffs: 0.0,
 		min: -0.75,
 		max: 0.75,
@@ -94,7 +103,7 @@ const prog = {
 	 },
 	 // rendercb : rendercb,
 	  gui: gui,
-	  on: true
+	  on: false
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 };
 

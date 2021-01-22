@@ -21,7 +21,7 @@ const fshader = /*glsl*/`#version 300 es
 
 	    c *=0.002;
 	    // c /= float(num);
-    	fragColor = vec4( vec3(1.), c );
+    	fragColor = vec4( vec3(1.), c*smoothstep(0.2,0.9,c) );
 
 	}
 
@@ -107,7 +107,7 @@ const gui = {
 		{
 			radius: rad,
 			min: 1,
-			max: 18,
+			max: 14,
 			step: 0.1,
 			onChange: (val)=>{rad = val;}
 		},
