@@ -70,7 +70,7 @@ const prog = {
 	 // rendercb : rendercb,
 	  // setupcb : setupcb,
 	  gui: gui,
-	  on: true
+	  on: false
 	 // clearcolor: [0.2, 0.8, 0.0, 1],
 };
 

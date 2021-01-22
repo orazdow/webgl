@@ -54,6 +54,15 @@ const gui = {
 		}
 	},
 	{
+		wobble : 0.0,
+		min: 0.0,
+		max: 1.0,
+		step: 0.001,
+		onChange: (val)=>{
+			prog.uniforms.wob = val;
+		}
+	}, /*
+	{
 		offset : 0.0,
 		min: 0.0,
 		max: 3.1416,
@@ -61,7 +70,7 @@ const gui = {
 		onChange: (val)=>{
 			prog.uniforms.offs = val;
 		}
-	},
+	}, */
 	{
 		anim: 0.0,
 		min: 0.0,
@@ -79,6 +88,20 @@ const gui = {
 		onChange: (val)=>{
 			prog.uniforms.avalz = val;
 		}
+	},
+	{
+		offs_x : 0.0,
+		min: -1,
+		max: 1,
+		step: 0.002,
+		onChange: (val)=>{ prog.uniforms.offsx = val;}
+	},
+	{
+		offs_y : 0.0,
+		min: -1,
+		max: 1,
+		step: 0.002,
+		onChange: (val)=>{ prog.uniforms.offsy = val;}
 	},
 	{
 		alpha : 1.0,

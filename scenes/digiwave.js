@@ -31,8 +31,10 @@ const wavefrag = /*glsl*/ `#version 300 es
         // p = 1. - p;
         // fragColor = vec4(log(1.+p.x+p.y));
         // fragColor = vec4(p.x*p.y*2., p.y, p.x+p.y, 1.);
-        fragColor = vec4(sin(p.x*100.)*0.5+0.5, (sin(p.x*100.)*0.5+0.5), sin(p.y*100.)*0.5+0.5, 1.);
-        fragColor.w = smoothstep(0.49, v5, 1.-fragColor.z);
+        vec3 c = vec3(sin(p.x*100.)*0.5+0.5, (sin(p.x*100.)*0.5+0.5), sin(p.y*100.)*0.5+0.5);
+        fragColor = vec4(c.xxx, 1.);
+        fragColor.w = smoothstep(0.49, v5, 1.-c.z);
+        // fragColor *= vec4(1., .7, .6, 1.);
         // fragColor.w = step(0.54, 1.-fragColor.z)*v5;
     }
 

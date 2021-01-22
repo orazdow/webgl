@@ -182,7 +182,7 @@ function rendercb(pgm){
 
 const gui = {
     name: 'mesh',
-    open: true,
+    open: false,
     switch: true,
     fields:[
         {
@@ -279,6 +279,7 @@ const prog = {
     rendercb : rendercb,
     setupcb : setupcb,
     gui: gui,
+    on: false
     // clearcolor: [0.5, 0.5, 0.5, 1.0],
 };
 

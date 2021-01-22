@@ -78,6 +78,7 @@ let rate = 0.1;
 const ifps = 1./60;
 let pos = 0;
 // let n = 200;
+let scale = .5;
 
 let num = 300; //POINTS_MAX-1;
 let stride = 60;
@@ -96,6 +97,7 @@ function switchMode(i){
 		    prog.glprog.programInfo = prog.glprog.fsprogs[0];
 		break;
 		case 1:
+			points.fill(2);
 			prog.glprog.drawtype = prog.gl.POINTS;
 			let arrays = {position: { numComponents: 2, data: points}};
 		    prog.glprog.bufferInfo = twgl.createBufferInfoFromArrays(prog.gl, arrays);
@@ -130,8 +132,8 @@ function poincare(/*float* */arr, /*int*/ /*pos,*/ /*int*/ arrlen, /*int*/ drawl
         z += dz*dt;
         t += dt;
 
-        px = x*0.5;
-        py = y*0.5;
+        px = x*scale;
+        py = y*scale;
 
         if(Math.abs((c*t)-section) < 0.004){
             if(pos >= limit || pos*2 >= arrlen-2) break;
@@ -155,9 +157,8 @@ function poincare(/*float* */arr, /*int*/ /*pos,*/ /*int*/ arrlen, /*int*/ drawl
 
 const gui = {
 	name: "duffing",
-	on: true,
 	switch: true,
-	open: true,
+	open: false,
 	fields: [
 		{
 			num : num,
@@ -206,6 +207,14 @@ const gui = {
 			onChange: (v)=>{b = v;}
 		},
 		{
+			scale: scale,
+			min: 0.2,
+			max: 0.9,
+			step: 0.01,
+			onChange: (v)=>{scale = v;}
+
+		},
+		{
 			rendermode : mode,
 			min : 0,
 			max: 1,
@@ -230,6 +239,7 @@ const prog = {
     rendercb : rendercb,
     setupcb : setupcb,
     clearcolor: [0., 0., 0., 1.0],
+    on: false
 };
 
 export default prog;

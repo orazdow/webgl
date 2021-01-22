@@ -34,17 +34,20 @@ const pgm = bkgd;
 pgm.res = {width: 800, height: 700};
 
 spacebkgd.on = true;
-spacebkgd.uniforms.v1 = .2;
-spacebkgd.uniforms.v2 = .5;
-tex_bkgd.on = false;
-tex_bkgd.gui.open = false;
+// spacebkgd.uniforms.v1 = .2;
+// spacebkgd.uniforms.v2 = .5;
+// tex_bkgd.on = true;
+// tex_bkgd.gui.open = true;
+// wave.on = true;
 
-multi.chain = [duffing]
-multi.on = false
+// multi.chain = [duffing]
+// multi.on = false
 
-// pgm.chain = [/*{},*/ spacebkgd, squares, tex_bkgd, wave, tex_prog, brownian];
+pgm.chain = [/*{},*/ spacebkgd, /*multi,*/tex_bkgd, tex_prog, wave, squares, tex_progb, duffing, brownian];
+tex_prog.on = true;
+tex_prog.gui.open = true;
 
-const glview = new Glview(document.querySelector('#disp'), multi);
+const glview = new Glview(document.querySelector('#disp'), pgm);
 
 const gui = new dat.GUI();
 gui.__closeButton.style.visibility = "hidden";
